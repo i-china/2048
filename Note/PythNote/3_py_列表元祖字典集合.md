@@ -136,7 +136,178 @@ list常用方法(count、index、pop、reverse、sort)
 		字节：元组比列表少16个字节
 			列表是动态的，存储指针指向对应的元素 占用8个字节，元素可变，需要额外存储已经分配的长度大小
 			元组，长度固定，存储元素不可变，存储空间是固定的。
-	
 
+### 字典
+	dict ： 类列表，数据的集合，可变序列类型。无序可变序列，内容以 键值对 形式存放
+	特征：
+		通过键来读取元素
+		任意数据类型的无需集合
+		可变的，可任意嵌套
+		键必须是唯一
+		键必须不可变
+	
+	创建字典
+		1. 花括号 { }
+			每个元素包含2部分： 键 : 值， 键和值用冒号分割，相邻元素用逗号分割，大括号{}包含
+			eg : dict_str = {'name':'hale','age':23}
+				同一字典 键值 必须唯一，键值可以是整数、字符串、元组
+		2. 通过 fromkeys() 创建字典
+			创建所有键值为空的字典
+			eg:	dict_str = dict.formkeys(list, value=None)
+				各个键对应的值为空None， 通常用初始化字典，设置value的默认值
+		3. 通过 dict() 映射函数创建字典
+			eg： dict_str = dict(one=1,tow=2,thre=2)
+				 dict_str = [('one',1),('toe',2)]
+				 dict_str = [['one',1],['tow',2]]
+				 dict_str = (('one'.1),('two',2))
+				 dict_str = ['one','two','three']
+	访问字典
+		通过 键 访问对应的元素值。 但字典元素是无序的
+			eg： dict_str['one']
+				 dict_str.get(key[,default])	// 通过 get 方法获取指定键的值
+					dict_str.get('two')
+				使用get() 方法，可为其设置默认值
+	删除字典
+		使用 del 语句 删除字典
+			eg： del(dict_str)
+
+字典基本操作(添加、修改、删除键值对)
+	字典无需
+	操作字典的方法：
+		1. 向现有字典添加键值对
+		2. 修改现有字典中的键值对
+		3. 删除指定键值对
+		4. 判断是否存在指定键值对
+	
+	字典添加键值对
+		dict[key] = value
+			dict ： 表示字典名称
+			key  ： 要添加元素的键，不可重复
+			value： 要添加的值。支持的数据类型
+			
+	修改键值对
+		不是修改某一键值对的键和值，只修改值
+		如 新添加的元素的键已存在，替换原键对应的值
+	
+	删除键值对
+		del 
+			eg：del dict_str['one']
+	
+	判断是否存在
+		使用 in 或者 not in 运算符
+			eg：'one' in dict_str		|		'two' not in dict_str
+
+字典方法攻略
+	keys() 、values() 、 items()
+		keys() ：返回字典中的所有键
+			dict_str.keys()
+		values() ： 返回字典中所有键对应的值
+			dict_str.values()
+		items() ： 返回字典中所有的键值对
+			dict_str.items()
+	返回数据的两个方法：
+		list()	： 将返回的数据转换为 列表
+			list(dict_str.keys())
+		利用多重赋值，李彤循环结构将键或值分别赋给不同的变量
+			for k in dict_str.keys():
+				print(k,end=' ')
+			for v in dict_str.values():
+				...v
+			for k,v in dict_str.items():
+				print('key: ',k,'value: ',v)
+	
+	copy() 方法
+		返回一个具有相同键值对的新字典
+			dict_str.copy()			// copy 将字典 的数据 拷贝给 字典other
+				拷贝原理，有深、有浅。 copy为深拷贝
+	
+	update() 方法
+		使用一个字典所包含的键值对更新已有的字典
+			如果已存在的键值对，原value会被覆盖，如不存在，即添加
+
+	pop() 方法
+		获取指定 key 对应的 value，并删除这个键值对
+			dict_stc.pop('key')
+
+	popitem()
+		随机弹出字典中的一个键值对，弹出字典最后一个键值对，底层存储的最后一个键值对
+			dict_str.popitem()
+
+	setdefault() 方法
+		根据 key 获取对应 value 的值，如获取的key在字典中不存在，会设置默认的value，然后返回该key对应的value
+			dict_str.setdefault('one',23)
+
+	使用字典格式化字符串
+		在字符串模板中按 key 指定变量， 然后通过字典为字符串模板中的 key 设置值 
+			字符串模板中使用key
+				people = 'name: %(name)s , price: %(price)0.2f, sex: %(sex)s'
+				object = {'name':'Hale','price':23,'sex':'man'}
+				print(people % object)
+
+Set 集合
+	保存不重复的元素，集合中的元素是唯一的，set集合是无序的
+	集合将所有元素放在一堆大括号中{}，元素用 ',' 分割
+		{key,key2,keyN}
+		只能存储不可变的数据类型，即 整形、浮点型、字符串、元组。 不可以存储 列表、字典、集合。
+	两种集合类型：
+		1. set 类型的集合 ： 可做 添加、删除元素的操作
+		2. frozenset 集合 ：	不可以
+	
+	创建set集合
+		2种方式：
+			1. 使用 {} 创建 ：直接将集合赋值给变量
+				set_str = {key,key1,keyn...}
+			
+			2. set()函数创建
+				set_str = set(iteration)
+					iteration : 表示字符串、列表、元组、range对象等数据
+
+	访问set集合元素
+		访问集合元素使用循环结构
+			for key in set_str:
+				print(key,end=' ')
+	
+	删除set集合
+		del()
+			del(set_str)
+	集合常用操作：向集合中添加、删除元素。以及集合之间做交集、并集、差集等运算。
+
+set集合基本操作(添加、删除、交集、并集、差集)
+	向set集合中添加元素
+		set_str.add(element)
+			只能是数字、字符串、元组或布尔类型，不能添加列表、字典、集合等可变数据
+	从set集合删除元素
+		set_str.remove(element)
+			如删除不存在的，抛出 KeyError错误
+				如不想提示KetError错误，可使用discard()方法
+
+set集合做交集、并集、差集运算
+	交集： &	取两集合公共的元素		set1 & set2	
+	并集： |	取两集合全部的元素		set1 | set2
+	差集： -	取一个集合中另一集合没有的元素	set1 - set2
+	对称差集： ^	取集合A和B中不属于A&B的元素  set1 ^ set2
+
+set集合方法
+	dir(set)	
+		add、clear、copy、difference、difference_update、discard、intersection、intersection_update、isdisjoint、issubset、i是superset、pop、remove、symmetric_difference、symmetric_difference_update、union、update
+
+frozenset 集合(set 集合不可变版本)
+	特点：
+		1. 当集合元素不需要改变时，使用frozenset代替set更安全
+		2. API不需要改变时，必须用frozenset代替set。如 集合元素不可变，set只能包含frozenset
+			s = set()
+			f = frozenset('key')
+			s.add(f)
+
+深入底层字典和集合
+	字典和集合是进行过性能高度优化的数据结构
+		字典和集合的工作原理：
+			数据机构
+				字典和集合的内部结构都是一张哈希表
+					对字典：表存储了哈希值(hash)、键和值
+					对集合：哈希表内只存储单一的元素
+	哈希表插入数据
+	哈希表查找数据
+	哈希表删除元素
 
 
