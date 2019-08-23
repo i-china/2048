@@ -99,9 +99,113 @@
 			基于生成器的上下文管理器更方便、简洁、适用于小型程序
 				切记： 用__exit__() 或是 finally 块中释放资源
 
+	fileinput模块：逐行读取多个文件
+		把多个输入流合并在一起
+			fileinput.input (files = "filename1,filenamex,...",inplace=False,backup=",bufsize=0,mode='r',openhook=None")
+				files ：多个文件的路径列表
+				inplace ： 指定是否将标准输出的结果写回到文件，默认值为 False
+				backup ： 指定备份文件的扩展名
+				bufsize ： 指定缓存区的大小，默认0
+				mode ： 打开文件的格式，默认 r
+				openhook ： 控制文件的打开方式，如编码格式
+		fileinput 模块常用函数
+			fileinput.filename() ：返回读取文件的文件名
+			fileinput.fileno() ：返回文件描述
+			fileinput.lineno() ：返回读取的行号
+			fileinput.filelineno() ：返回读取的行在文件中的行号
+			fileinput.isfirstline() ： 读取的行在文件中是否为第一行
+			fileinput.isstdin() ： 是否从sys.stdin 读取
+			fileinput.nextfile() ： 关闭当前文件，开始读取下一个文件
+			fileinput.close() ： 关闭fileinput对象
 
+	linecache模块：随机读取文件指定行
+		从源文件随机读取指定行，并在内部使用缓存优化存储，会使用utf-8字符集
+			常用函数：
+				linecache.getline(filename,lineno,module_globals=None)：读取指定模块中指定文件的指定行，filename指定文件名，lineno指定行号
+				linecache,clearcache() ：清空缓存
+				linecache.checkcache(filename=None) ：检查缓存是否有效，如没有指定文件名filename参数，默认检查所有缓存的数据
 
+	pathlib模块
+		提供了一组面向对象的类，代表各种操作系统上的路径
+		PuraPath 的两个子类： PurePosixPath:Unix风格的路径  PureWindowsPath：Windows风格的路径
+	PurePath ：使用此函数或他的子类来创建PurePath对象，创建时，可闯入单个路径字符串，也可传入多个路径字符串
+	PurePath类的属性和方法：
+		操作路径字符串，[](http://c.biancheng.net/view/2541.html)	
+	Path类功能和用法：
+		Path 是PurePath的子类，可访问底层的文件系统，判断Path对应的路径是否存在，可对文件进行读写
 
+	os.path 模块函数
+		操作目录的方法，可操作系统的目录本身，如 exists():判断目录是否存在, getctime()：创建时间 getmtime()：修改时间  getatime()：访问时间  getsize()：文件大小
+	
+	fnmatch模块：文件名的匹配
+		匹配支持的通配符：
+			* ： 匹配任意个任意字符
+			? ： 匹配一个任意字符
+			[字符序列] ：匹配中括号里字符序列中的任意字符，
+			[!字符序列] ： 匹配不在中括号里字符序列中的任意字符
+		fnmatch.fnmatch(filename,pattern)：判断指定文件名是否匹配指定pattern
+		fnmatch.fnmatchcase(filename,pattern)：匹配时不区分大小写
+		fnmatch.filter(names,pattern) ：对names列表进行过滤，返回names列表中匹配pattern的文件名组成的子集合。 
+		fnmatch.translate(patteran)：将Unix shell风格的pattern转换为正则表达式pattern
+
+	os模块：
+		os模块与目录相关的函数：
+			os.getcwd()：获取当前目录
+			os.chdir(path) ： 改变当前目录
+			os.fchdir(fd) ：通过文件描述改变当前目录
+			os.chroot(path)：改变当前进程的根目录
+			os.listdir(path)：返回paht对应目录下的所有文件和子目录
+			os.mkdir(path[,mode])：创建path对应的目录，mode指定目录的权限
+			os.makedirs(path[,mode])：类似mkdir ，可递归创建目录，
+			os.rmdir(path)：删除path对应的空目录，如非空抛出 OSError异常，可先用os.remove()删除文件
+			os.removedirs(path) ：递归删除目录，类似rmdir
+			os.rename(src,dst)：重命名文件或目录，将src命名为dst
+			os.renames(old,new) ：对文件或目录进行递归重命名，类rename，
+
+	os模块与权限相关的函数
+		os.access(path,mode)：检查path对应的文件或目录是否具有指定权限，第二参数的四个状态
+			os.F_OK ： 判断是否存在
+			os.R_OK ： 是否可读
+			os.W_OK ： 是否可写
+			os.X_OK ： 是否可执行
+		os.chrnod(path,mode) :更改权限，
+			stat.S_IXOTH ：其他用户有执行权限
+			[更多](http://c.biancheng.net/view/2558.html)			
+		os.chown(path,uid,gid) ：更改文件的所有值，uid代表用户id，gid代表组id
+		os.fchmod(fd,mode) ：改变一个文件的访问权限，fd代表文件
+		os.fchown(fd,uid,gid) ：改变文件的所有者''
+
+	os模块与文件访问函数
+		os.open(file,flags[,mode]) ：打开一个文件，设置打开选项，flags表示打开文件的旗标
+	，支持多个选项
+			os.O_RDONLY ： 只读方式打开
+			os.O_WRONLY ： 只写方式
+			os.O_RDWR ： 读写方式
+			os.O_NONBLOCK ： 打开时不阻塞
+			os.O_APPEND ： 追加方式打开
+			os.O_CREAT ；创建并打开一个新文件
+			[更多](http://c.biancheng.net/view/2558.html)
+		os.read(fd,n) ：从文件描述符fd中读取最多n个字符，返回读到的字符串
+		os.wirte(fd,str) ：将字符串写入文件描述符fd，返回写入的字符串长度
+		os.close(fd) : 关闭文件描述符fd
+		os.lseek(fd,pos,how) ： 用于移动文件指针，how指定从哪里开始移动，
+		os.fdopen(fd[,mode[,bufsize]]) ：通过fd打开，返回文件对象
+		os.closerange(fd_low,fd_high) : 关闭从fd_low 包含 到 fd_high 不包含范围的所有文件描述符
+		os.dup(fd) ： 复制文件描述符
+		os.dup2(fd,fd2) ： 讲一个fd 复制到另一个文件描述符 fd2中
+		os.ftruncate(fd,length) ： 将fd对应的文件截断到length长度，length参数不超文件大小
+		os.remove(path) ：删除path对应的文件
+		os.link(src,dst) ： 创建从src 到dst的硬连接
+		os.symlink(src,dst) ：创建从src到dst的符号链接
+
+	tempfile模块：生成临时文件和临时目录
+		常用函数：
+			tempfile.TemporaryFile(mode='w+b',buffering=None,encoding=None,newline=None,suffix=None,prefix=None,dir=None) ：创建临时文件，返回类文件对象，支持I/O
+		[More](http://c.biancheng.net/view/2560.html)
+			tempfile.gettempdir() : 获取系统临时目录
+		创建临时文件的两种方式：
+			1. 手动创建临时文件，读写临时文件后需主动关闭，程序关闭时文件自动删除
+			2. 使用with语句创建临时文件，with语句自动关闭临时文件
 
 
 
