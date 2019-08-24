@@ -1,566 +1,535 @@
-			Python类型转换为 JSON类型
-				字典(dict)						对象(object)
-				列表(list)和元组(tuple)			数组(array)
-				字符串(str)						字符串(string)
-				整形、浮点型、派生的枚举		数值型(number)
-				True							true
-				False							false
-				None							null 
-		查看模块所有属性和函数： import json -> json.__all__
-		常用函数和类的功能：
-			json.dump(obj,fp,*,skipkeys=False...)	// 将obj对象转换成json字符串输出到fp流中
-			json.dumps(obj,*,skipkeys=False,...)	// 将obj对象转换为JSON字符串，并返回该JSON字符串
-			json.load(fp,*,cls=NONE,object_hook=None,...)	// 从fp流读取JSON字符串，将其恢复成JSON对象， fp支持write()方法的类文件对象
-			json.loads(s,fp,*,encoding=None,cls=None,object_hook=None,...)	// 将JSON字符串s恢复为JSON对象
 
+	fileinput模块：逐行读取多个文件
+		把多个输入流合并在一起
+			fileinput.input (files = "filename1,filenamex,...",inplace=False,backup=",bufsize=0,mode='r',openhook=None")
+				files ：多个文件的路径列表
+				inplace ： 指定是否将标准输出的结果写回到文件，默认值为 False
+				backup ： 指定备份文件的扩展名
+				bufsize ： 指定缓存区的大小，默认0
+				mode ： 打开文件的格式，默认 r
+				openhook ： 控制文件的打开方式，如编码格式
+		fileinput 模块常用函数
+			fileinput.filename() ：返回读取文件的文件名
+			fileinput.fileno() ：返回文件描述
+			fileinput.lineno() ：返回读取的行号
+			fileinput.filelineno() ：返回读取的行在文件中的行号
+			fileinput.isfirstline() ： 读取的行在文件中是否为第一行
+			fileinput.isstdin() ： 是否从sys.stdin 读取
+			fileinput.nextfile() ： 关闭当前文件，开始读取下一个文件
+			fileinput.close() ： 关闭fileinput对象
+
+	linecache模块：随机读取文件指定行
+		从源文件随机读取指定行，并在内部使用缓存优化存储，会使用utf-8字符集
+			常用函数：
+				linecache.getline(filename,lineno,module_globals=None)：读取指定模块中指定文件的指定行，filename指定文件名，lineno指定行号
+				linecache,clearcache() ：清空缓存
+				linecache.checkcache(filename=None) ：检查缓存是否有效，如没有指定文件名filename参数，默认检查所有缓存的数据
+
+	pathlib模块
+		提供了一组面向对象的类，代表各种操作系统上的路径
+		PuraPath 的两个子类： PurePosixPath:Unix风格的路径  PureWindowsPath：Windows风格的路径
+	PurePath ：使用此函数或他的子类来创建PurePath对象，创建时，可闯入单个路径字符串，也可传入多个路径字符串
+	PurePath类的属性和方法：
+		操作路径字符串，[](http://c.biancheng.net/view/2541.html)	
+	Path类功能和用法：
+		Path 是PurePath的子类，可访问底层的文件系统，判断Path对应的路径是否存在，可对文件进行读写
+
+	os.path 模块函数
+		操作目录的方法，可操作系统的目录本身，如 exists():判断目录是否存在, getctime()：创建时间 getmtime()：修改时间  getatime()：访问时间  getsize()：文件大小
 	
+	fnmatch模块：文件名的匹配
+		匹配支持的通配符：
+			* ： 匹配任意个任意字符
+			? ： 匹配一个任意字符
+			[字符序列] ：匹配中括号里字符序列中的任意字符，
+			[!字符序列] ： 匹配不在中括号里字符序列中的任意字符
+		fnmatch.fnmatch(filename,pattern)：判断指定文件名是否匹配指定pattern
+		fnmatch.fnmatchcase(filename,pattern)：匹配时不区分大小写
+		fnmatch.filter(names,pattern) ：对names列表进行过滤，返回names列表中匹配pattern的文件名组成的子集合。 
+		fnmatch.translate(patteran)：将Unix shell风格的pattern转换为正则表达式pattern
+
+	os模块：
+		os模块与目录相关的函数：
+			os.getcwd()：获取当前目录
+			os.chdir(path) ： 改变当前目录
+			os.fchdir(fd) ：通过文件描述改变当前目录
+			os.chroot(path)：改变当前进程的根目录
+			os.listdir(path)：返回paht对应目录下的所有文件和子目录
+			os.mkdir(path[,mode])：创建path对应的目录，mode指定目录的权限
+			os.makedirs(path[,mode])：类似mkdir ，可递归创建目录，
+			os.rmdir(path)：删除path对应的空目录，如非空抛出 OSError异常，可先用os.remove()删除文件
+			os.removedirs(path) ：递归删除目录，类似rmdir
+			os.rename(src,dst)：重命名文件或目录，将src命名为dst
+			os.renames(old,new) ：对文件或目录进行递归重命名，类rename，
+
+	os模块与权限相关的函数
+		os.access(path,mode)：检查path对应的文件或目录是否具有指定权限，第二参数的四个状态
+			os.F_OK ： 判断是否存在
+			os.R_OK ： 是否可读
+			os.W_OK ： 是否可写
+			os.X_OK ： 是否可执行
+		os.chrnod(path,mode) :更改权限，
+			stat.S_IXOTH ：其他用户有执行权限
+			[更多](http://c.biancheng.net/view/2558.html)			
+		os.chown(path,uid,gid) ：更改文件的所有值，uid代表用户id，gid代表组id
+		os.fchmod(fd,mode) ：改变一个文件的访问权限，fd代表文件
+		os.fchown(fd,uid,gid) ：改变文件的所有者''
+
+	os模块与文件访问函数
+		os.open(file,flags[,mode]) ：打开一个文件，设置打开选项，flags表示打开文件的旗标
+	，支持多个选项
+			os.O_RDONLY ： 只读方式打开
+			os.O_WRONLY ： 只写方式
+			os.O_RDWR ： 读写方式
+			os.O_NONBLOCK ： 打开时不阻塞
+			os.O_APPEND ： 追加方式打开
+			os.O_CREAT ；创建并打开一个新文件
+			[更多](http://c.biancheng.net/view/2558.html)
+		os.read(fd,n) ：从文件描述符fd中读取最多n个字符，返回读到的字符串
+		os.wirte(fd,str) ：将字符串写入文件描述符fd，返回写入的字符串长度
+		os.close(fd) : 关闭文件描述符fd
+		os.lseek(fd,pos,how) ： 用于移动文件指针，how指定从哪里开始移动，
+		os.fdopen(fd[,mode[,bufsize]]) ：通过fd打开，返回文件对象
+		os.closerange(fd_low,fd_high) : 关闭从fd_low 包含 到 fd_high 不包含范围的所有文件描述符
+		os.dup(fd) ： 复制文件描述符
+		os.dup2(fd,fd2) ： 讲一个fd 复制到另一个文件描述符 fd2中
+		os.ftruncate(fd,length) ： 将fd对应的文件截断到length长度，length参数不超文件大小
+		os.remove(path) ：删除path对应的文件
+		os.link(src,dst) ： 创建从src 到dst的硬连接
+		os.symlink(src,dst) ：创建从src到dst的符号链接
+
+	tempfile模块：生成临时文件和临时目录
+		常用函数：
+			tempfile.TemporaryFile(mode='w+b',buffering=None,encoding=None,newline=None,suffix=None,prefix=None,dir=None) ：创建临时文件，返回类文件对象，支持I/O
+		[More](http://c.biancheng.net/view/2560.html)
+			tempfile.gettempdir() : 获取系统临时目录
+		创建临时文件的两种方式：
+			1. 手动创建临时文件，读写临时文件后需主动关闭，程序关闭时文件自动删除
+			2. 使用with语句创建临时文件，with语句自动关闭临时文件
+
+
+
+## 数据库编程
+
+### 数据库API(DB API)
+	全局变量
+		3个全局变量：
+			1. apilevel ： 显示数据库模块的API版本号
+			2. threadsafety ： 指定数据库模块的线程安全等级，等级值为 0～3，3代表模块完全是线程安全的，1:部分安全 ，0：  完全不能共享该模块
+			3. paramstyle ： 指定SQL语句需要参数时，使用风格的参数，返回如下变量值：
+				format ： 格式化字符串代表参数，使用 %s
+				pyformat ： 使用扩展的格式代码代表参数
+				qmark ： 使用 ？ 问号代表参数
+				numeric ： 使用数字占位符 :N 代表参数，1 代表一个参数，2 也代表参数
+				named ： 使用命名占位符 :name 代表参数
+
+	数据库API的核心类
+		连接对象的方法和属性
+			cursor() ：			打开游标
+			commit() ：			提交事物
+			rollback()：		回滚事物
+			close() ：			关闭数据库连接
+			isolation_level:	返回或指定数据库连接中事物的隔离级别
+			in_transaction:		判断当前是否处于事物中
+	cursor ： 返回游标对象，游标对象是 Python DB API的核心对象，用于执行各种SQL语句，包括DDL、DML、select 查询语句等，使用游标执行不同的SQL语句返回不同的数据。
+		游标对象的属性和方法：
+			execute(sql[,parameters]) ： 执行SQL语句，parameters 参数用于为SQL语句中的参数指定值
+			executemany(sql,seq_of_parameters) ：重复执行SQL语句，通过第二个参数指定值，序列有多少个元素，SQL语句被执行多少次
+			executescript(sql_script) ：直接执行包含多条SQL语句的SQL脚本
+			fetchone() : 获取查询结果集的下一行，如没有，则返回None
+			fetchmany(size=cursor.arraysize) ：返回查询结果集的下N行组成的列表，如没有，返回空
+			fetchall() : 返回查询结果集的全部行组成的列表
+			close() : 关闭游标
+			rowcount ： 只读属性返回受SQL语句影响的行数，修改的记录条数也可通过该属性获取
+			lastrowid ：获取最后修改行的rowid
+			arraysize ： 设置或获取fetchmany 默认获取的记录条数，默认为 1
+			desciption ： 获取最后一次查询返回所有列的信息，只读
+			connection ： 返回创建游标的数据库连接对象，属性只读
+
+		操作数据库的基本流程
+			1. 调用 connect 方法打开数据库连接，返回数据库连接对象
+			2. 通过数据库连接对象打开游标
+			3. 使用游标执行SQL语句 包括 DDL、DML、select查询语句，如执行的是查询语句，则处理查询数据
+			4. 关闭游标
+			5. 关闭数据库连接
+			[图示](http://c.biancheng.net/uploads/allimg/190301/2-1Z301153400E3.gif)
+
+	SQLite 创建数据库表
+		是一种嵌入式数据库，数据库是一个文件，SQLite将整个数据库包括定义表、索引以及数据本身，作为一个单独的、可跨平台使用的文件存储在主机中。不需要安装。直接导入
+		连接数据库：
+			connect() 函数
+				conn = sqlite3.connect('xx.db')		// xx.db 是一个数据库,如不存在，在当前目录下创建对应的文件
+		创建数据库：
+			import sqlite3
+			conn = sqlite3.connect('xx.db ')
+			c = conn.cursor()
+			c.execute(''' create table user_tb(
+				id interger primary key autoincrement,
+				name text,
+				pass text,
+			gender text)'''
+					)
+			c.execute(''' create table post_tb
+					id integer primary key autoincrement,
+					post_name text,
+					post_author text,
+					post_number real,
+					user_id integer,
+					foreign key(user_id) references user_tb(id)''')
+			c.close()
+			conn.close()
+		SQLite 支持 NULL、INTEGER、REAL浮点数、TEXT文本、BLOD大二进制对象
+		
+	SQLite execute 和 executemany 
+		游标的execute 方法可执行DML 操纵语言 的 insert 、update、delete 语句，对数据库执行插入、修改和删除数据操作
+		调用execute 方法执行insert 可向数据库插入数据
+		向数据库插入一条数据：
+			// 导入访问SQLite的模块
+			import sqlite3
+			// 打开或创建数据库， 可用 :memory: 代表创建内存中的数据库
+			conn = sqlite3.connect('xx.db')			// xx.db 指创建时指定的数据库文件
+			// 获取游标
+			c = conn.cursor()
+			//	调用执行 insert 语句插入数据
+			c.execute('insert into user_tb values (null,?,?,?)', ('xxx','xxx','xxx'))
+			c.execute('insert into xxx_tb values (null,?,?,?)' ('xx','xx','xx'))
+			//	提交事物
+			conn.commit()
+			// 关闭游标
+			c.close()
+			// 关闭连接
+			conn.close()
+	 executemany ： 多次执行同一条SQl语句
+			import sqlite3
+			conn = sqlite3.connect('xx.db')
+			c = conn.cursor()
+			c.executemany('inert into xxx_tb values (null,?,?,?)',
+				(	('xx','xxx','xxxx'),
+					('aa','aaa','aaaa'),
+					('bb','bbb','bbbb'),
+					('zz','zzz','zzzz')
+				))
+			conn.commit()
+			c.close()
+			conn.close()
+	update | delete
+		import sqlite3
+		conn = sqlite3.connect('xx.db')
+		c = conn.cursor()
+		c.execute(' update user_tb set xxx=? where xx=? ',
+					(('aa',1),
+					('bb',2)
+				))
+		print('change numbers : ', c.rowcount)
+		conn.commit()
+		c.close()
+		conn.close()
+	
+	SQLite : fetchone() , fetchmany() and fetchall:
+		select 语句执行查询结果， 通过游标的 fetchone 、fetchmany、fecthall获取查询结果，fetchone 获取一条，fetchmany 获取多条， fetchall 获取全部
+		import sqlite3
+		conn = sqlite3.connect('xx.db')
+		c = conn.cursor()
+		c.execute('select * from user_tb where xx > ?',(2,))
+		print('result : ', c.rowcount)
+		for col in (c.description):
+			print([col[0],end'\t'])
+		print('\n------')
+		where True:
+			row = c.fetchone()
+			if not row:
+				break
+			print(row)
+			print(row[1] + ' -> ' + row[2])
+		c.close()
+		conn.close()
+	可修改部分代码：
+		while True:
+			// 指定抓起的条数记录，返回由条数组成的列表
+			rows = c.fetchmany(3)
+			//	判断rows是否为None
+			if not row:
+				break
+			// 再次使用循环遍历获取的列表
+			for r in rows:
+				print(r)
+		避免使用fetchall获取查询的全部记录，如数据量过大，会导致内存开销过大，导致系统崩溃！
+		
+	SQLite： executescript 
+		可执行一段SQL脚本
+			import sqlite3
+			conn = sqlite3.connect('xx.db')
+			c = conn.cursor()
+			c.executescript('''
+				insert into user_tb values (null,'aaa','aaa','aaaa'),
+				insert into user_tb values (null,'bbb','bbb','bbbb'),
+				create table item_tb (id integer primary key autoincrement, name, price)
+			''')
+			conn.commit()
+			c.close()
+			conn.close()
+		简化： SQLite 提供了3个方法为数据库连接对象
+			1.  execute(sql[,parameters]) : 执行一条SQL语句
+			2. executemany(sql[, parameters]) : 根据序列重复执行SQL语句
+			3. executescipt(sql_script) ： 执行SQL脚本
+			只是游标对象的3个方法的快捷方式								 
+	SQLite： create_function 方法： 注册自定义函数
+		create_function 方法包含的三个参数：
+			1. name ： 指定注册的自定义函数的名字
+			2. num_params ： 指定自定义函数所需参数的个数
+			3. func ： 指定自定义函数对应的函数
+			为SQL语句注册一个自定义函数，可在SQL语句中使用该自定义函数
+				import sqlite3
+				def reverse_ext(st):
+					return '[' + st[::-1] + ']'
+				conn = sqlite3.connect('xx.db')			// xx.db 代表数据库文件
+				conn.create_function('enc',reverse_ext)
+				c = conn.cursor()
+				c.execute('insert into user_tb values(null,?,enc(>),?)' ,
+							('xx','xx','xxx'))
+				conn.commit()
+				c.close()
+				conn.close()
+	
+	SQLite create_aggregate() : 自定以聚集函数
+		SQL提供的5个聚集函数：
+			1. sum() : 统计总和
+			2. avg()  ：统计平均值
+			3. count() ： 统计记录条数
+			4. max() ： 统计最大数
+			5. min() ： 统计最小数
+	可使用数据库连接对象提供的 create_aggregate(name,num_params,aggregate_class)方法，用于注册一个自定义的聚集函数
+			create_aggregate 方法包含3个方法：
+					1. name ： 指定自定义聚集函数的名字
+					2. num_params ： 指定聚集函数所需的参数
+					3. aggregate_class ： 指定聚集函数的实现类，该类必须实现 step(self,pargams,..) 和 finalize(self) 方法，step方法返回每条记录各执行一次，finalize 方法只在最后执行一次，返回值作为聚集函数最后的返回值
+
+	SQLite： create_collation ： 创建自定义比较函数
+		create_collation(name, callable) 注册一个自定义的比较函数
+			2个参数：
+				1. name ： 指定自定义比较函数的名字
+				2. callable ： 指定自定义比较函数对应的函数，包含两参数，对两个参数进行比较，如返回正整数，第一个参数更大，如是负整数，第二个参数更大，如返回0，则相等
+				import sqlite3
+				def my_collate(str1,str2):
+					if st1[1:-1] == str2[1:-1]:
+						return 0;
+					elif ...
+				conn = sqlite3.connect('xx.db')
+				conn.creat_collation('sub_cmp',my_callate)
+				c = conn.cursor()
+				c.execute('seleft * from xxx_tb where field = ?', (1))
+				for row in c:
+					print(row)
+				conn.commit()
+				c.close
+				conn.close()
 				
-
-
-## 正则表达式
-	Regular Expression 描述一种字符串匹配的模式，检查一个字符串是否含有某个子串，也可从字符串中提取匹配的子串，或对字符串中匹配的子串执行替换操作，可用来开发数据抓取、网络爬虫等
-	查看该模块所包含的属性和函数： import re -> re.__all__
-	函数作用：
-		re.complie(pattern, flags=0) : 将正则表达式字符串编译成 _sre.SRE_Pattern 对象， 该对象代表正则表达式编译之后在内存中的对象，可缓存并复用正则表达式字符串，如多次使用同一正则表达式字符串，则可先编译它。
-			pattern ： 所编译的正则表达式字符串， flags ： 匹配旗标，
-		re.match(pattern , string, flags=0) : 从字符串开始位置匹配正则表达式，如匹配不成功，match 函数返回None，
-			pattern ： 正则表达式。 string ：匹配的字符串。 flags ： 正则表达式的匹配旗标。
-		re.search(pattern, string, flags=0) : 扫描整个字符串，返回字符串中第一处匹配pattern的匹配对象，
-			pattern ： 正则表达式。 string ：被匹配的字符串。 flags ： 匹配旗标
-		re.findall(pattern, string, flags=0) :  扫描整个字符串，返回字符串中所有匹配pattern的子串组成的列表。 
-			pattern ： 正则表达式。 string ：被匹配的字符串。 flags ： 匹配旗标
-		re.finditer(pattern, string, flags=0) ： 扫描整个字符串，返回字符串所有匹配pattern 的子串组成的迭代器。
-			pattern ： 正则表达式。 string ：被匹配的字符串。 flags ： 匹配旗标
-	findall、finditer 、search 的区别： search 只返回字符串中第一处匹配pattern的子串，findall和finditer 返回字符串中所有匹配pattern的子串
-		re.fullmatch(pattern,string, flags=0) ：要求整个字符串匹配 pattern，如匹配返回包含匹配信息的 _sre.SRE_Match对象，否则 None
-		re.sub(pattern,repl,string,count=0,flags=0) ：将string字符串中所有匹配pattern的内容替换成repl
-				repl ： 被替换的字符串，可是函数， count 控制替换的次数。
-			import re
-			date = '2019-08-22'
-			print(re.sub(r'-','/',date))
-				r'-' ：是原始字符串， r ： 代表原始字符串，通过原始字符串，避免对字符串中的特殊字符转译
-					r'(?P<lang>\w+)' : 正则表达式用圆括号表达式创建一个组， '?P' 为该组起名为 lang ， \w+ 是正则表达式的内容，代表一个或多个任意字符，
-		re.split(pattern,string, maxsplit=0, flags=0) ： 使用pattern对string进行分割，返回分割得到的多个子串组成的列表，maxsplit 参数控制分割的次数
-		re.purge() : 清楚正则表达式缓存
-		re.escape(pattern) ：对模式中除ASCII字符、数值、下划线之外的其他字符转义
-		re模块中的Match 对象是match 、search方法的返回值，包含了详细的正则表达式匹配信息，包含匹配的位置、子串
-		sre.SRE_Match 对象包含如下方法或属性：
-			match.group([group1,...]) : 获取该匹配对象中指定组所匹配的字符串
-			match.__getitem__(g) ： match.group(g)的简化写法。
-			match.groups(default=None) : 返回match对象中所有组所匹配的字符串组成的元组
-			match,groupdict(default=None) ：返回match对象中所有组所匹配的字符串组成的字典
-			match.start([group]) ：获取该匹配对象中指定组所匹配的字符串的开始位置
-			match.end([group]) ：获取结束位置
-			match,span([group]) ：获取开始和结束位置，相当于同时返回 start 和 end方法的返回值
-			match.pos : 该属性返回传给正则表达式对象的search , match等方法的pos参数
-			match.lastindex : 返回最后一个匹配的捕获组的整数索引，如没有，则返回None
-			match.lastgroup : 返回最后一个匹配的捕获组的名字，如没有，则返回None
-			match.re : 返回执行正则表达式匹配时所用的正则表达式
-			match.string : 返回执行正则表达式时所用的字符串
-
-### set 和 frozenset 集合操作
-		set 集合是可变容器，可改变容器中的元素， frozenset集合，是set的不可变版本，他的元素不可变
-		set集合：
-			两个特征：
-				1. set 不记录元素的添加顺序
-				2. 元素不允许重复
-				[e for e in dir(set) if not e.startswith('__')]
-			add添加 、 remove 删除元素、discard 删除元素、clear 清空 
-			remove 和 discard 区别： remove 报KeyError异常。discard 不报
-		set 支持的运算符：
-			<= : 相当于调用 issubset() 方法，判断前面的set集合是否为后面set集合的子集合
-			>= ：调用issuperset 方法，判断是否为后面set集合的父集合
-			- ： 调用difference ，前面的set集合减去后面的set集合的元素
-			& ： 调用intersection，获取两个set集合的交集
-			^ ： 计算两个集合异或的结果，即两个集合的并集减去交集的元素
-
-	frozenset 集合
-		是set的不可变版本，set集合中不改变集合本身的方法，fronzenset 都支持
-		作用：
-			1. 当集合元素不需要改变时，使用frozenset 代替 set更安全
-			2. 当某些api需要不可变对象时，必须用frozenset代替set
+	MySQL 数据库
+		查看已安装的模块： pip list
+						   pip show packagename
+						   pip show mysql-connector-python
+		卸载已安装的模块： pip uninstall packagename
+		安装模块： pip install packagename
+					pip install mysql-connector-python
+					pip install packagename == 1.0	// 可指定版本
 	
-	queue (双端队列) 模块
-		栈：一种特殊的线性表，允许一端进行插入、删除操作。这个端为栈定(top),另一端为栈底(botton)
-		从栈顶插入一个元素称为： 进栈， 压入栈。 push 
-		从栈顶删除一个元素称为： 出栈， 弹出栈。 pop
-		栈，陷入栈的元素位于栈底，上面元素出栈后，栈底的元素才能出栈。 栈 是一种 后进先出(LIFO)的线性表 
-		队列是一种特殊的线性表，只允许在表的前段(font) 删除，在后端(rear) 插入。 插入的操作的端为 队尾， 删除操作的端为 队头
-			队列：元素是从队列的rear 端进。 队列是一种 先进先出FIFO 的线性表。 
-		双端队列deque 代表特殊的队列， 在两端同时进行插入、删除操作，deque 即可为队列使用，也可为 栈 使用
-		deque 位于 collections 包下，[e for e in dir(collections.deque)if not e.startswith('__')]
-			from collections import deque
-			双端队列的特征， deque 的左边 left 相当于 它的队头front， 右边right 相当于它的队列尾rear
-				append 和 appendleft ：在deque的右边或左边添加元素， 即在默认队列尾添加元素
-				pop 和 popleft ：在deque的右边或左边弹出元素，默认在队列尾弹出元素
-				extend 和 extendleft ： 在deque的右边或左边添加多个元素，默认在队列尾添加多个元素
-			deque 中clear 方法用于清空队列，insert 方法是线性表的方法，指定位置插入元素
-			deque 中 rotate 方法。将队列的队尾元素移动到队头，使之首位相连
+		MySQL 数据库执行DDL 语句
+			import mysql.connector
+			conn = mysql.connector.connect(user='root',password='root', host='127.0.0.1|localhost',post='3306', database='python',use_unicode=True)
+			c = conn.cursor()
+			c.execute('''	create table user_tb (
+					user_id int primary key auto_increment,
+					name varchar(100),
+					pass varchar(200),
+					gender varchar(100)
+				)''')
+			c.execute(''' create table order_tb (
+				order_id int primary key auto_increment,
+				item_name varchar(100),
+				item_price double,
+				item_number double,
+				user_id  int,
+				foreign key(user_id) reference user_tb(user_id)
+			)''')
+			c.close()
+			conn.close()
 
-	heapq 堆操作
-		小顶堆的任意子树是小顶堆，大顶堆的任意子树是大顶堆
-		import heapq	-> heapq.__all__
-		函数功能：
-			heappush(heap,item) ： 将item元素加入堆
-			heappop(heap) : 将堆中最小元素弹出
-			heapify(heap) : 将堆属性应用到列表上
-			headpreplace(heap,x) : 将堆中最小元素弹出，并将元素x入堆
-			merge(*iterables, key=None, reverse=False) ： 将多个有序的堆合并为一个大的有序堆，然后输出
-			headppushpop(heap,item) ： 将item入堆，然后弹出并返回堆中最小的元素
-			nlargest(n,iterable,key=None) ： 返回队中最大的n个元素
-			nsmallest(n,iterable,key=None) : 返回堆中最小的n个元素
+	MySQL 数据库执行DML 语句
+		可使用游标的execute 方法执行DML的 insert 、upadte、delete
+			import mysql-connector
+			conn = mysql-connector.connect(user='root',password='hale',host='localhost',port='3306',database='python',use_unicode=True)
+			c = conn.cursor()
+			c.execute('insert into user_tb values(null, %s,%s,$s)',('aa','aaa','aaaa'))
+			c.executemany('insert into order_tb values (null,%s ,%s,%s,%s)', 
+					(('a','aa','aaa'),('b','bb','bbb'),('c','cc','ccc')))
+			conn.commit()
+			c.close()
+			conn.close()
+		使用 %s 作为占位符
+		update 
+			c.executemany('update user_tb set name=%s where user_id = %s ', (('e','ee','eee'),('w','ww','www')))
+			print('change : ', c.rowcount)
+			conn.comm
+		mysql数据库模块连接对象有一个 autocommit ，如属性设置为True ，则关闭连接的事物支持，每次执行DML语句后会自动提交，无需调用 commit 方法提交事物
+			import mysql.connector 
+			conn = mysql.connector.connect(user='root',password='hale',host='localhost',port='3306',database='python',use_unicode=True)
+			conn.autocommit = True
+
+	MySQL 数据库执行查询语句
+		import mysql.connector
+		conn = mysql.connector.connect(user='root',password='hale',host='localhost',port='3306',database='python',use_unicode=True)
+		c = conn.cursor()
+		c.execute('selecet * from user_tb where user_id > %s', (1,))	
+		for col in (c.description):
+			print(col[0],end='\t')
+		print('\n -------')
+		for row in c:
+			print(row)
+			print(row[1] + ' -> ' + row[2])
+		c.close()
+		conn.close()
 		
-	ChainMap
-		使用链的方式将多个 dict 链在一起，允许程序可直接获取任意一个dict所包含的key对应的value
-		ChainMap 相当于把多个dict合并为一个大的dict，
-	
-	Counter 类
-		可自动统计容器中个元素出现的次数
-		本质是一个特殊的dict，key是所包含的元素，value记录key出现的次数 
-		Counter 继承了dict， 提供三个常用的方法：
-			1. elements ： 返回该counter 所包含的全部元素组成的迭代器
-			2. most_common([n]) ：返回Counter 中出现最多的n个元素
-			3. subtract([iterable-or-mapping]) ： 计算counter 的减法，计算减去之后各元素出现的次数
-		可把Counter对象转换为 set集合、list列表、dict字典等，可对Counter执行 加、减、交、并运：
-			加： 将两个Counter对象中各Key 出现的次数相加，保留为正的元素
-			减： 相减，保留出现次数为正的元素
-			并： 出现key且各key对应的次数的最小数
-			求正： 只保留出现次数为0 或正数的key-value对
-			求负： 保留次数为负的 key-value 对，将次数改为正数
+		游标对象支持 fetchone() fetchmany() fetchall() 
+		c.execute('select * from ueer_tb where user_id > %s',(1,))
+		where True:
+			rows = c.fetchmany(3)
+			if not rows:
+				break
+			for r in rows:
+				print(r)
+
+	MySQl callproc : 调用数据库存储过程
+		callproc(self,procname,args=0)
+			procname : 代表存储过程的名字， args 参数用于存储过程传入参数
+			result_args = c.callproc('add_pro',2,1,0)
+
+	PyMySQl模块下载和安装
+		类Connector/Python、PyMySQL ，称为接口程序，通过此对象，可对另外一个对象操作
+		安装PyMySQL模块：
+			pip install PyMySQL
+				import pymysql
 		
-	defaultdict ：
-		是dict 的子类，与dict 的区别： 根据不存在的key访问dict中对应的value，会引发KeyError异常，defaultdict则提供default_factory属性， 指定的函数为不存在的key来生成value
-
-	namedtuple 工厂函数功能
-		可创建一个tuple类的子类，为tuple的每个元素指定字段名，可根据字段名访问namedtuple的各元素，根据索引来访问namedtuple的各元素
-			namedtuple(typename,field_names, * , verbose=False, rename=False,module=None)
-				typename : 指定所创建的tuple子类的类名，等于用户定义一个新类
-				field_names ： 字符串序列，使用单个字符串代表所有字段名，用空格、逗号隔开
-				rename ： 如参数为True， 无效字段名会被自动替换为位置名
-				verbose ： 参数为True， 当子类被创建后，该类定义会被立即打印出来
-				module ： 自定义类的__module__属性将被设为该参数值
-			Python 为命名元组提供的方法和属性：
-				_make(iterable) ：类方法，根据序列或可迭代对象创建命名元组对象
-				_asdict() : 将当前命名元组对象转换为OrderdDict 字典
-				_replace(**kwargs) ： 替换命名元组中一个或多个字段的值
-				_source ： 返回定义该命名元组的源代码
-				_fileds ： 返回该命名元组中所有字段组成的元组
-			
-	OrderdDict用法：
-		是dict的子类，可 维护 添加 key-value 对的顺序， 先添加key-value对排的前面，后添加的key-value对排的后面
-		两个方法：
-			1. popitem(last=True) ： 弹出并返回最左边的最后加入的key-value对，将last参数设为False，则弹出并返回最左边最先加入的key-value对
-			2. move_to_end(key,last=True) : 将指定的key-value对移动到最右边最后加入，将last改为False，则将指定的key-value对移动到最左右最先加入
-			
-	itertools模块：生成迭代器
-		先导入 import itertools 模块， [e for e dir(itertools) if not e.startswith('__')]
-		三个生成无限迭代器的函数：
-			1. count(start,[step]) ：生成start、start+step、start+2*step,...的迭代器，step默认为1。 count(10) 生成的迭代器包含： 10，11，12，13，14.。。
-			2. cycle(p) : 对序列p生成无限循环p0，p1.。。的迭代器。cycle('ABCD') 包含：A,B,C,D,A,B,C,D,...
-			3. repeat(elem [,n]) ： 生成无限个 elem元素重复的迭代器. repeat(10,3) ：10，10，10，
-		在itertools 模块中常用的迭代器函数：
-				accumulate(p,[func]) ： 生成根据序列p元素累加的迭代器
-				chain(p,q,...) : 将多个序列里的元素 链 在一起生成新的序列
-				compress(data,selectros) ： 根据selectors序列的值对data序列的元素进行过滤
-				dropwhile(pred,seq) : 使用pred函数对seq序列进行过滤，如计算为False，保留该元素到序列结束的全部元素
-				takewhile(pred,seq) ：使用pred函数对seq进行过滤，去掉从该元素序列结束的全部元素
-				filterfalse(pred,seq)：使用pred函数对seq序列进行过滤，保留seq中使用pred计算为True的元素
-				islice(seq,[start,]stop[,step]) ：类似于slice，返回seq[start:stop:step]的结果
-				starmap(func,seq)：使用func对seq每个元素进行计算，结果为新的序列元素
-				zip_longest(p,q,...) ：将p、q序列中元素按索引合并成元组，元组作为新序列的元素
-		在itertools 模块中生成序列排列的工具函数：
-				product(p,q,...[repeat = 1])：用序列p、q，。。。进行排序组合，相当于嵌套循环组合
-				permutations(p[,r]) ：从序列p中取出r个元素组成排序，将排序得到的元组作为新迭代器的元素
-				combinations(p,r) ：从序列p中取出r个元素组成全组合，元素不重复，将组合得到的元组作为新迭代器的元素
-				combinations with_replacement(p,r)：从序列p中取出r个元素组成全组合，元素可重复，将组合得到的元组作为新迭代器的元素
-
-	functools 模块：
-		包含函数装饰器和便捷的功能函数， import functools 
-			常用函数装饰器和功能函数：
-				functools.cmp_to_key(func) ：将老式的比较函数(func)转换为关键字函数(key function) py3不支持
-				@function.lru
-
-				[更多](http://c.biancheng.net/view/2443.html)
-
-
-
-
-
-
-
-## Tkinter (GUI图形洁面开发)
-	GUI ：Graphics User Interface 图形用户界面。三要素：输入数据、处理数据、输出数据
-	常用库：
-		wxPython ： 跨平台GUI工具集
-		PyQt ： 是Py和Qt库的融合
-		PyGTK ： 基于老版本GTK+2的库提供绑定，借助于底层GTK+2提供的可视化元素和组件
-		Pywin32 ： 允许像VC使用Py开发win32应用
-		Kivy ： 开源库，使用同源代码创建的程序跨平台
-		Flexx ： 纯Py工具包，创建图形化界面程序，支持使用web技术进行界面渲染
-
-	Tkinet GUI 编程组件及用法
-		学习GUI步骤为三步：
-			1. 包含的组件
-			2. 容器及容器对组件布局的方法
-			3. 掌握各组件的用法
-			[Tkinter GUI 关系](http://c.biancheng.net/view/2451.html)
-		Tkinter的GUI组件有两个根父类，直接继承object类
-			1. Misc ： 所有组件的根父类
-			2. Wm ： 提供窗口管理器通行的功能函数
-		BaseWidget ： 所有组件的基类，派生类：Widget ，通用GUI组件，Tkinter 是所有GUI组件都是Widget的子类
-		各GUI组件的功能
-			Toplevel：		顶层			容器类
-			Button ：		按钮			按钮组件
-			Canvas ：		画布			绘图功能
-			Checkbutton：	复选框			可勾选的复选框
-			Entry  ：		单行输入框		用户可输入容内
-			Frame ：		容器			装载其他GUI组件
-			Label ：		标签			显示不可编辑的文本或图标
-			LabelFrame ：	容器			容器组件，支持添加标题
-			Listbox ：		列表框			列出多个选项，供用户选择
-			Menu	：		菜单			菜单组件
-			Menubutton ：	菜单按钮		包含菜单的按钮 包括下拉式、层叠式
-			OptionMenu ：	菜单按钮		Menubutton的子类
-			Message ：		消息框			类标签，显示多行文本，Lable代替，废弃
-			PanedWindow：	分区窗口		该容器可划分为多个区域
-			Radiobutton	：	单选钮			单选按钮
-			Scale ：		滑动条			可设置起始值和结束值，显示当前精准值
-			Spinbox ：		微调选择器		可通过组件向上、向下选择不同的值
-			Scrollbar ：	滚动条			用于为组件(文本域、画布、列表框、文本框)提供滚动
-			Text ：			多行文本框		显示多行文本
-		initWidgets 方法实现的代码：
-			1.创建 GUI 组件
-			2.添加 GUI 组件
-			3.配置 GUI 组件
-		配置GUI组件的2种方法：
-			1. 以关键字参数的方式配置
-			2. 以字典语法进行配置
-		[GUI通用选项](http://c.biancheng.net/view/2451.html)
+		import pymysql
+		conn = pymysql.connect(host='localhost',root='root',password='pass',db='python',charset='utf8mb4')
+		c = conn.cursor()
+		c.execute('select  Version()')
+		while True:
+			rows = c.fetchmany(3):
+				if not rows:
+					break
+				
+				for i in rows:
+					print(i)
+		c.close()
+		conn.close()
+	创建数据库：	
+		import pymysql
+		conn = pymysql.connect('localhost','root','root','python')
+		cursor = conn.cursor()
+		cursor.execute('Drop table if exists tb_name')
+		sql = ''' create table user_tb (
+			user_id int primary key auto_increment,
+			name varchar(100),
+			email varchar(10),
+			pass varchar(100)
+		)'''
+		cursor.execute(sql)
+		cursor.close()
+		conn.close()
 	
-	TKinter Pack 布局管理器
-		[常用选项及功能]()
-		anchor : 空间大于组件所需求的大小，决定被放置在容器的位置
-		expand : 指定当容器增大时是否拉伸组件
-		fill :	组件是否沿水平或垂直方向填充
-		ipadx :	指定组件在 x 方向上的内部留白
-		ipady : 在 y 方向上内部留白
-		padx :  在x方向上与其他组件的间距
-		pady :	在y方向上的间距
-		side :  设置组件的添加位置
+	数据库插入操作
+		import pymysql
+		conn = pymysql.connect('localhost','root','root','py_db')
+		cursor  = conn.cursor()
+		sql = ''' insert into user_tb (name,pass) values ('%s','%s') % ('aa','aa')'''
+		try: 
+			cursor.execute(sql)
+			conn.commit()
+		except:
+			conn.rollback()
+		conn.close()
 
-	Tkinter Grid 布局管理器
-		Grid 把组件空间分解为一个网格进行维护
-		Tkinter Grid 常用选项
-			column ： 指定将组件放哪列
-			columnspan : 指定组件横跨多少列
-			row ：指定放入哪行
-			sticky ：类 pack方法的anchor选项
+
+
+## 并发编程(多进程、多线程)
+
+### 进程和线程 区别
+	进程： 操作系统资源分配的基本单位，通常是一个程序
+	线程： 任务调度和执行的基本单位，是进程的组成部分
+		可运行多个进程(程序)，同一进程可多个线程同时执行(通过CPU调度，每个时间片中只有一个线程执行
+	内存方面：进程分配不同的内存控件，线程不分配
+	开销方面： 进程有独立的代码和数据空间程序上下文，进程切换开销大，线程是轻量级的进程，同一类线程共享代码和数据空间，有独立的运行栈和计数器，线程切换开销小
 	
-	Tkinter Place 布局管理器
-		绝对布局 ： 要求程序显式指定每个组件的绝对位置或相对其他组件的位置
-		常用选项：
-			x			指定组件的X坐标， x 为 0 代表最左边
-			y			Y 坐标						最右边
-			relx		组件的X坐标
-			rely		组件的Y坐标
-			width		组件的宽度
-			height		组件的高度
-			relwidth	组件的宽度
-			relheight	组件的高度
-			bordermode	设置组件的宽度、高度
+	单线程： 当一个进程中只有一个线程时
+	多线程： 当一个进程中有多个线程时 
 
-	Tkinter Command 和 Bind 事件处理
-		command 绑定事件处理方法：
-			可通过command 来绑定，可绑函数或方法，单击时，触发绑定的函数或方法
-		bind 绑定事件处理方法：
-			无法为具体事件绑定事件处理方法
-			无法获取事件相关信息
-		bind()方法： 可为 任意 事件绑定事件处理方法
-			Tkinter 支持的鼠标、键盘事件
-
-	Tkinter ttk组件及用法
-		是Tinkter 包下的模块，界面美化、包装
-	
-	Tkinter Variable类用法
-		支持GUI组件与变量进行双向绑定，
-			1. 如改变变量的值，GUI组件的显示内容或值也改变
-			2. 当GUI组件的内容改变时，值也改变
-		Tinkter 不能讲组件和普通变量进行绑定，只能和tkinter 包下的Variable类的子类进行绑定
-		1. StringVar() :	包装str值的变量
-		2. IntVar() :		整形值的变量
-		3. DoubleVar() ：	浮点值的变量
-		4. BooleanVar() :  包装bool值的变量
-	
-	Tkinter compound 选项使用方法
-		如使组件同时显示文本和图片，可通过 compound 选型进行控制
-			属性值：
-				1. None ： 图片覆盖文字
-				2. LEFT 常量： 图片在左，文本在右
-				3. RIGHT 变量： 图片在右，文本在左
-				4. TOP 常量： 图片在上， 文本在下
-				5. BOTTON 常量： 图片在底，文本在上
-				6. CENTER 常量： 文本在图片上方
-	
-	Tkinter Entry 和 Text 控件用法
-		可接收用户输入的输入框组件，区别： Entry ： 单行。 Text： 多行
-
-	Tkinter Radiobutton 和 Checkbutton 用法
-		单选按钮，可绑定一个方法或函数。 将多个Radiobutton 编为一组，将多个Radiobutton绑定到同一个变量，当其中一个单选按钮被选中时，该变量随之改变。
-	
-	Tkinter Listbox 和 Combobox 控件用法
-		列表框，通过列表框选择一个列表项。
-			创建 Listbox 的步骤：
-				1. 创建Listbox 对象，设置listbox的选择模式
-				2. 调用listbox的insert(self,index,*elements)添加选项
-	
-	Tkinter Spinbox 控件
-		通过两个小箭头调整该组件内的值
-	
-	Tkinter Scale 和 LabeledScale用法
-		代表一个滑动条，为滑动设置最大最小值
-		Scale 组件选项：
-			from ： 最大值
-			to ： 最小值
-			resolution ： 滑动时的步长
-			lable ： 设置标签内容
-			length ： 设置轨道的长度
-			width ： 轨道的宽度
-			troughcolor ： 背景色
-			sliderlength ： 长度
-			sliderrelief ： 立体样式
-			showvalue ： 是否显示当前值
-			orient ： 设置方向
-			digits ： 设置有效数字位数
-			variable ： 与变量进行绑定
-			command ： 为该Scale 组件绑定事件处理，函数或方法
-
-	Tinkter LabelFrame 用法
-		是Frame容器改进版，为容器添加标签，可为普通文字标签，也可为GUI组件为标签
-		对标签进行定制：
-			1. labelwidget ： 将任意GUI组件作为标签
-			2. labelanchor ： 设置标签位置
-
-	Tkinter Panedwindow 控件
-		管理窗口布局的容器，允许添加多个子组件，并为每个子组件划分一个区域，可用鼠标移动分隔线改变各子组件的大小
-		操作Panedwindow 容器中子组件的方法：
-			1. add(self,child,**kw) : 添加一个子组件
-			2. insert(self,pos,child,**kw) : 在pos 位置插入一个子组件
-			3. remove(self,child) ： 删除一个子组件，所在区域也删除 
-
-	Tkinter OptionMenu控件
-		构建带菜单的按钮，可在按钮的四个方向上展开，通过direction选项控制
-			__init__(self,master,variable ,value,*values, **kwargs)
-				1. variable ； 指定该按钮上的菜单与哪个变量绑定
-				2. Value ： 默认选择菜单中的哪一项
-				3. values ： 将收集为此参数传入的多个值，为每个值创建一个菜单项
-				4. kwargs ： 为 OptinoMenu配置选项
-
-	Tkinter 对话框创建及使用
-		1. 对话框依赖类似于顶级窗口，创建时需指定master属性
-		2. 对话框有非模式noo-modal和模式modal，某个模块对话框被打开，位于它依赖的窗口之上。
-		Tkinter 在 simpledialog 和dialog 模式下分别提供了 SimpleDialog 类和 Dialog 类，可作为普通对话框使用
-			使用simpledialog 和dialog 创建对话框可指定：
-				1. title： 标题
-				2. text ：内容
-				3. button： 按钮
-				4. default：默认第几个按钮得到焦点
-				5. cancel： 指定对话框上角的X按钮关闭对话框
-
-	Tkinter 自定义对话框
-		自定义通过继承Toplevel 实现：
-			1. 继承Toplevel 实现自定义对话框需要为对话框指定 master
-			2. 调用Toplevel 的grab_set 方法 把对话框变为模式对话框，否则为非模式对话框
-
-	Tkinter 输入对话框
-		工具函数：
-			1. askinteger ； 生成一个让用户输入正数的对话框
-			2. askfloat ： 输入浮点数的对话框
-			3. askstring ： 输入字符串的对话框
-
-	Tkinter 文件对话框创建和使用
-		直接返回用户选择文件的输入/输出流：
-			1. askiopenfile ： 打开单个文件的对话框
-			2. askopenfiles ： 打开多个文件的对话框
-			3. askopenfilename ： 打开单个文件的对话框，返回选择文件的文件路径
-			4. askopenfilenames ： 多个文件的对话框
-			5. asksavesfile ： 生成保存文件的对话框
-			6. asksaveasfilename ： 保存文件的对话框，返回所选择文件的文件路径
-			7. askdirectory ： 生成打开目录的对话框
-		生成打开文件的对话框工具函数：
-			1. defaulttextension ： 指定默认扩展名
-			2. filetypes ： 查看的文件类型
-			3. initaldir ： 初始化打开的目录
-			4. parent ： 指定该对话框的属主窗口
-			5. title ： 对话框的标题
-			6. multiple ： 允许多选
-
-	Tkinter askcolor 颜色选择对话框
-		函数选项：	
-			1. parent ： 属主窗口
-			2. title ： 标题
-			3. color ： 颜色
-
-	Tkinter 消息框
-		选项按钮
-			1. icon  ： 定制图标
-			2. type ： 定制按钮的选项
-		showinfo 函数： 默认生成的消息框的图标是感叹号
-
-	Tkinter Menu 菜单 窗口菜单和右键菜单
-		添加菜单项的方法：
-			1. add_command() : 添加菜单项
-			2. add_checbutton(): 复选框
-			3. add_radiobutton(): 单选按钮
-			4. add_separator() : 菜单分隔条
-		添加菜单的三个方法选项：	
-			1. label ： 指定菜单项的文本
-			2. command ： 指定绑定的事件处理方法
-			3. image ： 指定菜单项的图标
-			4. compound ： 图标位于文字的哪个方位
-		Menu窗口菜单：
-			创建菜单后，将菜单设为窗口的menu选项即可
-				add_command 为file_menu 添加多个菜单项
-				add_cascade 再次为file_menu添加子菜单
-				add_radiobutton 添加多个单选菜单项
-		Menu 右键菜单：
-			先创建菜单，为目标组件的右键菜单绑定处理函数, 点击右键，调用菜单post 方法即可
-
-	Tkinter Canvas 画布完全攻略
-		绘制直线、矩形、椭圆等图形，提供create_rectangle 方法绘制和 create_oval 绘制椭圆，绘制方法：
-			create_arc ： 绘制弧
-			create_bitmap ： 位图
-			create_image ： 图片
-			create_polygon ： 多边形
-			create_line ： 直线
-			create_text ： 文本
-			creat_window ： 绘制组件
-				绘制指定的选项：	
-					fill ： 填充颜色
-					outline ： 边框颜色
-					width ： 边框宽度
-					dash ： 边框虚线
-					stipple ： 位图平铺填充
-					start ： 开始角度
-					extend ： 绘制弧的角度
-					style ： 绘制弧样式
-					arrow ： 是否有箭头
-					arrowshape ： 箭头样式
-					joinstyle ： 连接点的风格
-					anchor ： 绘制文字
-					justify ： 文本对齐方式
-
-	Tkinter Canvas tag_bind ：指定图形项绑定事件处理函数或方法
-		tag_bind 方法： 用于为指定图形项绑定事件处理函数或方法，可用于响应用户动作
+###	创建线程的两种方式：
+	相关模块：
+		1. _thread ： 提供低级别的原始的线程支持，及简单的锁，功能有限，不建议使用
+		2. threading ： 提供丰富的多线程支持，推荐使用
+	创建方式：
+		1. 使用 threading 中的 Thread 类的构造器创建线程，直接对类 threding.Thread 进程实例化，并调用对象的 start 方法创建线程
+		2. 继承 threading 模块中的 Thread 类创建线程类，用 threading.Theread 派生出一个新的子类， 将新建类实例化，并调用 start 方法创建线程
 		
-	Tkinter Canvas 绘制动画
-		小球转动； 循环显示多张转动的小球图片
-		小球移动： 改变小球的坐标程序
+	 调用Thread 类的构造器创建线程：
+		直接调用 threading.Thread 类构造器创建线程：
+			__init__(self,gourp=None,target=None,name=None,args=(),kwargs=None,*,daemon=None)
+				group: 指定该线程所属的线程组，
+				target： 指定该线程要调度的目标方法
+				args ： 指定一个元组，以位置参数形式为target 指定的函数传入参数，元组的第一个参数传给target函数的第一个参数，第二个传给target第二个参数，以此类推
+				kwargs ：指定一个字典，以关键字参数的形式为target指定的函数传参
+				daemon ： 指定所构建的线程是否为后代线程
+		通过Thread 类的构造器创建并启动多线程的步骤：
+			1. 调用Thread类的构造器创建线程对象，创建时，target参数指定的函数将作为线程执行体
+			2. 调用线程对象的start() 方法启动该线程
+				import threading
+				// 定义普通的action函数，作为线程执行体
+				def action(max):
+					for i in range(max):
+						print(threading.current_thred().getName() + " " + str(i))
+				// 主程序、祝线程的执行体
+				for i range(100):
+					print(threading.current_thread().getName() + " " + str(i))
+					if i == 20:
+						t1 = threading.Thread(target=action,args=(100,))
+						t1.start()
+						t2 = threading.Thread(target=action,args=(100,))
+						t2.start()
+				print('master thread is run over !')
+				1. 创建一个Thread对象，线程的target 为 action， 将action函数作为线程主体执行，接下来的程序调用start 来启动t1线程
+				2. 再次创建线程，创建和启动与第一个线程完全相同
+				显式创建并启动了两个线程，但实际上有三个，当程序运行后，至少创建一个主线程，主线程的线程执行代码就是程序中的主程序，没放在任何函数中的代码
+					用到的函数和方法：
+						threading.current_thread(): 是threading 模块的函数，总是返回当前正在执行的线程对象
+						getName ：Thread类的实例方法，返回调用他的线程名字
+					在Threading模块中，经常用到的函数：
+						threading.enumerate() : 正运行线程的list
+						threading.activeCount ： 返回正在运行的线程数量，与 len(threading.enumerate())
 
-
-## 文件操作I/O
-
-	### 文件基本操作
-		常见操作： 创建、删除、修改权限、读取、写入等
-			1. 删除、修改权限：作用于文件本身，属于系统级操作
-			2. 写入、读取： 文件常用操作，作用于文本的内容，属于应用级操作
-		文件操作实现函数：
-			1. 打开文件： open 函数，返回文本对象
-			2. 对已打开的文件做读/写操作，读写，使用 read 、readline readlines 函数，写入：write 函数
-			3. 关闭文件： close 
-
-		open 函数：打开指定文件
-			如要操作文件，需创建或者打开指定的文件，并创建一个文件对象，内置的 open 函数
-				file = open(file_name [, mode [, buffering]]) 
-					file: 表示要创建的文件对象
-					file_mode ： 要创建或打开文件的文件名称，需用引号扩起来，注意路径
-					mode ： 可选参数；指定文件的打开模式，如不写，默认只读r
-					buffing ： 指定对文件做读写操作，是否使用缓存区
-				open 函数文件打开模式：
-					r ： 只读，指针在开头
-					rb ： 二进制格式，只读模式，指针位于开头，用于打开非文本文件，如图片
-					r+ ： 从头读取文件内容，从开头写入新的内容，新内容覆盖原有内容
-					rb+ ： 二进制格式读写模式打开，针对非文本文件，如音频文件
-					w ： 只读，清空文件原有内容
-					wb ：二进制格式、只读模式，音频文件
-					w+ ： 读写， 清空原有内容
-					wb+ ： 二进制格式、读写模式，非文本
-					a ：追加模式，只写权限，如文件不存在，则创建新文件
-					a+ ： 读写，指针位于末尾，如不存在，则新建
-					ab+ ： 二进制模式，追加模式，读写权限
-		[读写操作](http://c.biancheng.net/uploads/allimg/190228/2-1Z22QI61c59.gif)
-			open 打开文件时，默认GBK编码，指定打开文件的编码格式； 
-				file = open('xx.txt',encoding="utf-8")
-	
-		open()是否需要缓冲区 
-			一般建议打开缓冲，open函数，第三个参数是0或False，是不带缓冲的，若是1或True，则带缓冲
-		open 文件对象常用属性：
-			file.closed ： 判断是否关闭
-			file.mode ： 返回访问模式
-			file.name ： 返回文件名
-
-		以文件格式和二进制格式打开文件的区别：
-			相同点： 都是以二进制格式打开文件
-			不同点： 对文件中换行符的处理不同
-				Win： \r\n  转换为 \n 
-				Unix/Linux ： 默认换行符是 \n
-				推荐使用 b 打开二进制文件
-
-		read 函数： 按字节、字符读取文件
-			read 读取文件是字节、字符的区别： 取决于open函数打开文件时，是否使用 b 模式，如使用 b ，读取的是 字节， 如不是 b ，则是 字符
-			file.read([size])
-		read 抛出UnicodeDecodeErorr 异常的解决方案：
-			文本的额字符集和操作系统的字符集不匹配，解决方案：
-				1. 使用二进制模式读取， 然后用bytes 的decode 方法恢复为字符串
-				2. 采用 codecs 模块的open函数打开文件时指定字符集
-	readline 和 readlines ： 按行读取文件
-		readline ： 读取一行内容 。 readlines ： 读取文件内的所有行 
-			readline ： 
-				file.readline([size])
-					file 为打开的文件对象， size 可选参数，指定读取每一行，一次最多读取的字符数，模式使用 r 或 r+ 读写
-			readlines ：
-				file.readlines() : file 为文件打开对象， 模式使用r 或 r+
-
-		write 和 writelines ： 向文件中写入数据
-			file.write(string) :向文件中写入指定内容。 file。write(string)
-			writefiles() 函数： 
-				将字符串列表写入文件中。 向文件中写入多行数据时，不自动给各行添加换行符
-
-		close ： 关闭文件
-			flie.close()
-				关闭使用open函数打开的文件
-					如不在关闭文件的前提下将数据写入到文件中，使用文件对象提供的flush 函数
-
-	seek 和 tell 函数
-		tell ：判断文件指针当前所处的位置
-		seek ：用于移动文件指针到文件的指定位置
-			file.tell()
-			file.seek(offset[, whence])
-				file : 文件对象
-				whence ： 指定文件指针要放置的位置，0 开头，1当前位置，2文件尾
-				offset ： 相对于whence位置文件指针的偏移量
-	
-	with  as 用法
-		使用with as 语句操作上下文管理器 context manager，自动分配并且释放资源
-			with 表达式 [as target]:
-				代码块
-		即使没有关闭文件，修改文件内容的操作也能成功
-
-	上下文管理器， python with as 底层原理
-		包含 __enter__() 和  __exit__() 方法的对象是上下文管理器，上下文管理器必须实现一下两个方法：
-			1. __enter__(self): 进入上下文管理器自动调用的方法，会在with as 执行前执行，返回值被赋值给 as 子句后的变量，可返回多个值，在as子句后可指定多个变量，必须用 () 括起来
-			2. __exit__(self,exc_typ`e,exc_value,exc_traceback ) ： 退出上下文管理器自动调用的方法，在with as 代码执行后执行，如with as 因异常终止，程序自动调用该方法，使用 sys.exc_info 得到的异常信息将作为调用该方法的参数
-		构建上下文管理器，实现的2种方式：
-			1. 基于类的上下文管理器
-				只要类实现 __enter__()  __exit__ 这两个方法，就可使用with as来管理， 通过 __exit__ 方法的参数，可判断with 代码块执行是否遇到了异常，
-			2. 基于生成器的上下文管理器
-				使用基于生成器的上下文管理器时，不需要定义 __enter__() 和 __exit__()方法，但必须添加 装饰器 @contextmanager 
-			基于类的上下文管理器灵活，适用于大型的系统开发
-			基于生成器的上下文管理器更方便、简洁、适用于小型程序
-				切记： 用__exit__() 或是 finally 块中释放资源
-
-
-
-
+	继承Thread类创建线程类
+		步骤：
+			1. 定义Thread 类的子类，并重写run方法，run方法方法体代表线程需要完成的任务，因此 run方法称为 线程执行体
+			2. 创建Thread 子类的实例，即创建线程对象
+			3. 调用线程对象的start 方法来启动线程
+				import threading
+				class FKThread(threading.Thread):
+					def __init__(self):
+						threading.Thread.__init__(self)
+						self.i = 0 
+					def run(self):
+						while self.i < 100:
+							print(threading.current_thread().getName() + " " + str(self.i))
+						self.i += 1
+				for i in range(100):
+					print(threading.current_thread().getName() + " " + str(i) )
+					if i == 20:
+						ft1 = FKThread()
+						ft1.start()
+						ft2 = FKThread()
+						ft2.start()
+				
+				print('threading is ok !')
+					
 
 
 
