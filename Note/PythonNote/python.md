@@ -1,279 +1,3 @@
-
-	线程池及其原理和使用
-		当启动新线程的时，使用线程池可提升性能 。线程池在系统启动时即创建大量空闲的线程。
-		线程池的使用：
-			基类是concurrent.futures模块中的Executor。提供两个子类，即 ThreadPoolExecutor 和 ProcessPoolExecutor。 ThreadPollExecutor 用于创建线程池，ProcessPoolExecutor创建进程池
-			Executor提供的常用方法：
-				submit(fn,args,**kwargs): 将fn函数提交给线程池， *args 代表传给fn函数的参数，*kwargs 代表以关键字参数的形式给fn函数传入参数
-				map(func,*iterables,timeout=None,chunksize=1):类全局函数
-				map(func,*iterables)，该函数加你个启动多个线程，以异步方式立即对iterables执行map处理
-				shotdown(wait=True): 关闭线程池
-			submit方法返回Future对象，Future 提供的方法
-				cancel()：取消该Future代表的线程任务，如任务正在执行，不可取消，返回False
-				cancelled ：返回线程任务是否被成功取消
-				running ： 如正在执行，不可取消，返回False
-				done ；如任务被成功取消，返回True
-				result(timeout=None) : 获取线程返回的结果，如任务还未完成，该方法会阻塞当前线程，timeout指定组赛的秒数
-				exception(timeout=None):任务引发的异常，如任务成功完成，没异常，则返回None
-				add_done_callback(fn):为该Future 的线程注册一个 回调函数，任务完成，自动出发fn函数。
-		使用线程池执行线程任务的步骤：
-				1. 调用ThreadPoolExecutor 类的构造器创建一个线程池
-				2. 定义一个普通函数作为线程任务
-				3. 调用ThreadPoolExecutor对象的submi方法来提交线程任务
-				4. 调用ThreadPoolExecutor对象的shutdown方法来关闭线程池
-					from concurrent.futures import ThreadPoolExecutor
-					import threading
-					import time
-					
-					def action(max):
-						sum = 0
-						for i in range(max):
-							print(threading.current_therad().name() + ' ' + str(i))
-							sum += i
-						return sum
-					pool = ThreadPoolExecutor(max_workers=2)
-					future1 = pool.submit(action,50)
-					future2 = pool.submit(action,100)
-					print(future1.done())
-					time.sleep(3)
-					print(future2.done())
-					print(future1.result())
-					pool.shutdown()
-		获取执行结果
-			1.调用result方法获取线程任务的返回值。
-			2.通过Future的add_done_callback()方法添加回调函数
-			  线程池实现了上下文管理协议Context Manage Protocol，程序可用with语句来管理线程池，避免手动关闭线程池
-			  map方法会为iterables的每个元素启动一个线程，以并发方式执行func函数，相当于启动len(iterables)个线程，并收集每个线程的执行结果。
-		threading local函数：返回线程局部变量
-				threding 提供local函数，可返回一个线程局部变量，使用线程局部变量可很简捷隔离多线程访问的竞争资源。
-				线程局部变量Thread local Variable，为每个使用该变量的线程提供一个变量的副本，
-		线程局部变量的作用：
-			import threading
-			from concurrent.futures import ThreadPoolExecutor
-			data = threading.local()
-			def action(max):
-				for i in range(max):
-					try:
-						data.x += i
-					except:
-						data.x = i
-					print(" data %d" % (threading.current_thread().name,data.x)) 
-			with ThreadPoolExecutor(max_workers=2) as pool:
-				pool.submit(action,10)
-				pool.submit(action,10)
-
-	Timer 定时器：控制函数在特定时间执行
-		Thread类的子类Timer，可用于控制指定函数在特定时间内执行一次，
-			from threading import Timer
-			def hi():
-				print('hi')
-			t = Timer(10.0, hi)
-			t.start()
-		取消Timer的调度 cancel 函数
-
-	schedule 任务调度及用法
-		如需执行更复杂的任务调度，使用sched模块，提供了 sched.scheduler类，该类代表一个任务调度器
-		sched.scheduler(timefunc=time.monotonic,delayfunc=time.sleep) 构造器支持两个参数：
-			1. timefunc : 指定生成时间戳的时间函数，默认使用time.monotonic 生成时间戳
-			2. delayfunc; 指定阻塞程序的函数，默认使用 time.sleep 函数阻塞程序
-			[More](http://c.biancheng.net/view/2630.html)
-		sched.scheduler 调度器常用属性和方法：
-			scheduler.enterabs(time,priority,action,argument=(),kwargs={}): 指定time时间点执行action函数，argument 和 kwargs 用于向 action函数传入参数，arg...使用位置的形式传入参数。 kwargs 使用关键字传入参数
-		scheduler.enter(delay,priority,action, argument=(),kwargs={}): delay 指定多少秒后执行action任务。作用同上
-		scheduler.cancel(event): 取消任务
-		scheduler.empty(): 判断调度器队列是否为空
-		scheduler.run(blocking=True): 运行所有需要调度的任务
-		scheduler.queue： 只读属性返回该调度器的调度队列
-			import sched,time
-			improt threading
-			s = sched.scheduler()
-			def print_time(name='default'):
-				print(' %$ de time %s' % (name,time.ctime()))
-			print('master threading time', time.ctime())
-			s.enter(10,1,print_time)
-			s.enter(3,2,print_time,argument=('wei zhi hanshu '))
-			s.enter(5,2,print_time,kwargs=['name':'guanjianzi hanshu '])
-			s.run()
-			print('master ', time.ctime())
-
-	os.fork方法：创建新进程
-		多进程实现并发编程
-		fork 方法作用： 程序会启动两个进程(一个主进程，一个fork出来的子进程)来执行从os.fork() 开始的所有代码
-			fork方法不需要函数,有返回值表明哪个进程在执行:
-				1. 如果fork返回0， 表明fork出来的子进程在执行
-				2. 如fork返回非0， 表明父进程在执行，返回fork出来的子进程的进程ID
-					import os
-					print('master %s ' % os.getpid())
-					pid = os.fork()
-					print('worker in %s ' % os.getpid())
-					if pid == 0:
-						print('origin id  %s  master  id %s' % (os.getpid(),os.getppid()))
-					else:
-						print('me %s makr son id %s' % (os.getpid(),pid))
-					print('thread over %s ' % os.getpid())
-
-	Process 创建进程的2种方法
-		1. 指定函数作为target ，创建Process对象即可创建新进程
-		2. 继承Process 类，重写run方法来创建进程类，创建process子类的实例作为进程
-		Process 类的属性和方法：
-			1. run() : 实现进程的执行体
-			2. start ： 启动进程
-			3. join([timeout]) ： 类线程的join方法
-			4. name ： 设置和访问进程的名字
-			5. is_alive ：判断进程是否活着
-			6. daemon ： 判断是否设置进程的后台状态
-			7. pid ： 返回进程的ID
-			8. authkey ：返回进程的授权key
-			9. terminate ： 中断该进程
-		以指定函数作为target 创建新进程
-				import multiprocessing
-				import os
-				def action(max):
-					for i in range(max):
-						print('%s subprocess paterprocess %s  id %d ' % (os.getpid(),os.getppid(), i))
-				if __name__ == '__main__':
-					for i in range(100):
-						print('parent %s id %d' % (os.getpid(), i))
-						if i == 20:
-							mp1 = multiprocessing.Process(target=action,args=(100,))
-							mp1.start()
-							mp2 = multiprocessing.Process(target=action,args=(100,))
-							mp2.start()
-							mp2.join()
-					print('master process is ok')
-
-		继承Process 类 创建子进程
-			步骤：
-				1. 定义继承Process 的子类，重写run方法准备作为进程执行提
-				2. 创建Process 子类的实例
-				3. 调用 Process 子类的实例的start方法来启动进程
-					import multiprocessing
-					import os
-					class MyProcess(multiprocessing.Process):
-						def __init__(self,max):
-							self.max = max
-							super().__init__()
-						def run(self):
-							for i in range(self.max):
-								print('%s subprocess %s parent process %d ' % (os.getpid(),os.getppid(),i))
-					if __name__ == '__main__':
-					   for i in range(100):
-						    print('%s master process %d ' % (os.getpid(),i))
-							if i == 20:
-								mp1 = MyProcess(100)
-								mp1.start()
-								mp2 = MyProcess(100)
-								mp2.start()
-								mp2.join()
-						print('master process is ok!')
-						
-	设置进程启动的3种方式
-		1. spawn ：父进程启动解释器进程，子进程继承run方法所需的资源。不必要的文件描述和handler都不被继承，效率比fork或forkserver方式要低得多。 Windows 只支持spawn方式
-		2. fork： 通过os.fork 启动解释器， 子进程继承父进程所有资源，子进程等效于父进程
-		3. forkserver ： 启动一个服务器进程，当再次启动新进程，父进程会连接到该服务器进程。请求由服务器进程来fork新进程
-		multiprocessing 模块提供set_start_method 函数，用于设置启动进程的方式，必须将这行设置代码放在所有与多进程相关代码之前。 
-		if __name__ == '__main__':
-			multiprocessing.set_start_method('spawn')
-			q = multiprocessing.Queue()
-			mp = multiprocessing.Process(target=foo,args=(q,))
-			mp.start()
-			print(q.get())
-			mp.join()
-	
-	多进程和多线程优缺点
-		都使用并行机制提升系统运行效率，区别在于运行时所占内存分布不同，多线程共用一套内存的代码块区间，而多进程是各用一套独立的内存区间
-		多进程有点在于 稳定性好，一个子进程奔溃，不影响主进程和其余进程，此特性多用多进程来实现守护服务器的功能
-		多进程创建进程的代价非常大，操作系统会给每个进程分配固定的资源，会对进程的总数有一点的限制。
-		多线程效率高 ，用于批处理任务等功能。 不足：一个线程奔溃整个进程奔溃。
-		场景： 计算密集型的任务，多线程效率更高。 IO密集型的任务，如文件操作，网络爬虫，采用多线程
-		IO密集型操作，消耗时间是等待时间，Python会释放GIL供新的线程使用，实现线程间的切换。	将多进程程序分布运行在不同的计算机上协同工作，每一进程内部，由多个线程并行工作
-		最佳线程数量 = ()(线程等待时间+线程CPU时间) / 线程CPU时间) * CPU数量
-	
-	使用进程池管理进程
-		如需启动多个进程，可使用进程池管理进程，程序可通过multiprocess模块的pool函数创建进程池： multiprocessing.pool.Pool类
-		进程池常用方法：
-			1. apply(func[,args[,kwds]]) : 将func函数提交给进程池处理，args 传给func的位置参数， kwds代表传给func的关键字参数，会被阻塞直到func函数执行完成
-			2. apply_async(func[,args[,kwds[,callback[,error_callback]]]]): 异步，不被阻塞。callback指定func函数完成后的回调函数，error_callback 指定fun指定回调函数
-			3. map(func,iterable[,chunksize]) : 类python的map全局函数，使用新进程对iterable的每个元素执行func函数
-			4. imap(func,iterable[,chunksize]): map方法的延迟版本
-			5. imap_unordered(func,iterable[,chunksize]):类imap，不保证元素顺序一致
-			6. starmap(func,iterable[,chunksize]): 类map方法，要求iterable的元素是iterable对象，
-			7. close ： 关闭进程池，不再接收新任务，把进程池中的所有任务执行完后再关闭自己
-			8. terminate ： 立即中止进程池
-			9. join ： 等待所有进程完成
-			import multiprocessing
-			import time
-			import os
-			def action(name='default'):
-				print('%s process param %s ' % (os.getpid(),name))
-				time.sleep(3)
-			if __name__ == '__main__':
-				pool = multiprocessing.Pool(processes=4)
-				pool.apply_async(action)
-				pool.apply_async(actino,args=('location parame:',))
-				pool.apply_async(action,kwds={'name':'kwords params'})
-				pool.join()
-			线程池同样实现上下文管理协议，可使用with子句来管理进程池，避免程序主动关闭进程池
-				import multiprocessing
-				import time
-				import os
-				def action(max):
-					sum = 0
-					for i in range(max):
-						print('%s %d ' % (os.getpid(),i))
-						sum += i
-					return sum
-				if __name__ == '__main__':
-					with multiprocessing.Pool(processes=4) as pool:
-						results = pool.map(action,(50,100,200))
-						print('---')
-						for r in results:
-							print(r)
-				
-	进程间通信的2种实现方法 Queue Pipe
-		进程通信提供的2种机制：
-			1. Queue ： 一个进程向Queue中放入数据，另一个进程从Queue中读取数据
-			2. Pipe ： Pipe代表连接两个进程的管道，程序可调用Pipe函数时会产生两个连接段，分别交给两个进程，进程可从连接端读取数据，也可向该连接端写入数据
-		使用Queeu实现进程间通信
-			multiprocessing 模块下的Queue和queue 模块下的Queue类似，都提供qsize 、empyt、full、put、put_nowwait、get、get_nowait 等方法，区别： multiprecessing 模块下的Queue为进程提供服务， 而queue模块下的Queue为线程提供服务
-			import multiprecessing
-			def f(q):
-				print('%s ' % multiprocessing.current_process().pid)
-				q.quit('Python')
-			if __name__ == '__main__':
-				q = multiprocessing.Queue()
-				p = multiprocessing.Process(target=f,args=(q,))
-				p.start()
-				print('%s ' % multiprocessing.current_process().pid)
-				print(q.get())
-				p.join
-				
-	使用Pipe实现进程间通信
-		程序调用 multiprocessing.Pipe() 创建一个管道，返回两个PipeConnection对象，代表管道的两个连接端，一个管道有两个连接端，分别用于连接通信的两个进程
-		PipeConnection对象包含的常用方法：
-			1. send(obj) : 发送一个obj给管道的另一端，另一端使用 recv方法接收， 该obj需是可picklable的python序列化机制，如该对象序列化超过32MB，可引发ValueError异常
-			2. recv ：接收另一端通过send方法发送过来的数据
-			3. fileno：关于连接所使用的问价描述器
-			4. close ： 关闭连接
-			5. poll([timeout]):返回连接中是否有数据可读取
-			6. send_types(buffer[,offset[,size]]: 发送字节数据，使用recv_bytes 或 recv_bytes_into 方法接收
-			7. recv_bytes([maxlength])):通过send_bytes方法发送的数据，maxlength指定最多接收的字节数，返回接收到的字节数据
-			8. recv_bytes_into(buffer[,offset]): 类recv_bytes方法，将接收到的数据放在buffer中
-				import multiprocessing
-				def f(conn):
-					print('%s ' % multiprocessing.current_process().pid)
-					conn.send('Python')
-				if __name__ == '__main__':
-					parent_conn,child_conn = multiprocessing.Pipe()
-					p = multiprocessing.Process(target=f, args=(child_conn,))
-					p.start()
-					print('%s get data' % multiprocessing.current_process().pid)
-					print(parent_conn.recv())
-					p.join()
-
-
-
-
 ## 网络编程
 	计算机网路的功能：
 		1. 资源共享
@@ -448,6 +172,15 @@
 			2. 以CookieJar对象为参数，创建urllib.rquest.HTTPCookieProcessor对象，该对象负责调用CookieJar来管理cookie
 			3. 以HTTPCookieProcessor对象为参数，调用urllib.reques.build_opener()函数创建OpenerDirector对象
 			4. 使用OpenerDirector对象来发送请求，通过HTTPCookieProcessor调用CookieJar管理cookie
+				from urllib.request import *
+				import http.cookiejar, urllib.parse
+				cookie_jar = http.cookiejar.MozillaCookieJar('a.txt')
+				cookie_processor = HTTPCookieProcessor(cookie_jar)
+				opener = build_opener(cookie_processor)
+				user_agent = r'Mozialla ...'
+				header = {'User-Agent':user_agent,'Connection':'keep-alive'}
+
+
 			[More](http://c.biancheng.net/view/2646.html)
 
 	TCP协议、IP协议的关系
@@ -518,5 +251,257 @@
 			print('--%s--'s.recv(1024).decode('utf-8'))
 			s.close()
 
+	多线程实现socket通信
+		由于socket的recv方法在成功读取到数据之前。线程会被阻塞，因此，服务器为每个socket单独启动一个线程，每个线程负责与一个客户端进行通信
+		服务器端使用list来保存所有的socket
+		import socket
+		import threading
+		socket_list = []
+		ss = scoket.socket()
+		ss.bind(('192.168.1.14',999))
+		ss.listen()
+		def read_from_client(s):
+			try:
+				return s.recv(2048).decode('utf-8')
+			except:
+				socket_list.remove(s):
+		def server_target(s):
+			try:
+				while True:
+					content = read_from_client(s)
+					print(content)
+					if content is None:
+							break
+					for client_s in socket_list:
+						client_s.send(content.encode('utf-8'))
+			except e:
+				print(e.strerror)
+		while True:
+			s,addr = ss.accept()
+			socket_list.append(s)
+			threading.Thread(target=server_target,args=(s,)).start()
+		
+	socket shutdown 方法
+		以bytes对象作为通信的最小数据单位，服务器端在处理信息时是针对每个bytes进行的，一些协议中，通信数据单位可需多个bytes对象
+		shutdown(how)方法，可只关闭socket的输入或输出部分，用以表示数据已经发送完成
+		shutdown方法的how参数的参数值：
+			SHUT_RD： 关闭socket的输入部分，可通过socket输出数据
+			SHUT_WR： 关闭socket的输出部分，通过该socket读取数据
+			SHUT_RDWR： 全关闭，该socket既不能读取数据，也不能写入数据
+			服务器端先向客户端发送数据发送多条数据，当数据发送完成后，该socket对象调用shutdown方法来关闭输出部分
+			import socket
+			s = socket.socket()
+			s.bind(('192.168.1.88',999))
+			s.listen()
+			skt,addr = s.accept()
+			skt.send('server first data'.encode('utf-8'))
+			skt.send('server second data'.encode('utf-8'))
+			skt.shutdown(socket.SHUT_WR)
+			while True:
+				line = skt.recv(2048).decode('utf-8')
+				if line is None or line == '':
+					break
+				print(line)
+			skt.close()
+			s.close()
+		
+	selectors 模块：实现非阻塞式编程
+		selectors 允许以非阻塞方式进行通信，selector相当于一个事件注册中心，只要将socket的所有事件注册给selectors管理，当检测到socket中的特定事件后，程序调用相应的监听方法进行处理
+		selectors主要支持两种事件：
+			1. selectros.EVENT_READ: 当socket有数据可读时触发该事件，有客户端连接时也触发
+			2. selectors.EVENT_WRITE： 当socket将要写数据时触发该事件
+		selectors实现非阻塞式编程的步骤如下：
+			1. 创建selectors对象
+			2. 通过selectors对象为socket的selectors.EVENT_READ或selectors.EVENT_WRITE事件注册监听器函数，当socket有数据读写时，系统负责触发所注册的监听器函数
+			3. 在监听器函数中处理socket通信
+		使用seletros实现非阻塞通信的服务器端：
+			import seletors, socket
+			sel = seletors.DefaultSelector()
+			def read(skt,mask):
+				try:
+					data = skt.recv(1024)
+					if data:
+						for s in socket_list:
+							s.send(data)
+					else:
+						print('close ',skt)
+						sel.unregisters(skt)
+						skt.close()
+						socket_list.remove(skt)
+				except:
+					print('close')
+					sel.unregister(skt)
+					skt.close()
+					socket_list.remove(skt)
+			socket_list = []
+			def accept(sock, mask):
+				conn,addr = sock.accept()
+				socket_list.append(conn)
+				conn.setblocking(False)
+				sel.register(conn,selectors.EVENT_READ,read)
+			sock = socket.socket()
+			sock.bind(('192.168.1.1',999))
+			sock.listen()
+			sock.setblocking(Flase)
+
+	UDP协议及优缺点
+		UDP：User Datagram Protocol：用户数据报协议
+		UDP 面向非连接的协议，是在正式通信前不必与对象先建立连接，不管对方状态，直接发送数据， UDP协议无法控制，是一种不可靠的协议
+		UDP协议适用于一次只传送少量数据、对可靠性要求不高的应用环境
+		作用：完成网络数据流和数据报之间的转换在信息的发送端，UDP协议将网络数据流封装为数据报，然后将数据发送出去，在信息的接收端，UDP协议将数据报转换为实际数据内容
+		UDP协议和TCP协议的简单对比：
+			1. TCP协议：可靠，传输大小无限制，需要建立连接，差错控制开销大
+			2. UDP协议：不可靠，差错控制开销小，传输大小限制在64Kb以下，不需要建立连接。
+
+	socket发送和接收数据：基于UDP协议
+		创建socket，通过type参数指定socket的类型，将参数指定为 SOCK_DGRAM，即创建基于UDP协议的socket
+		通过两个方法发送和接收数据
+			1. socket.sendto(bytes,address): 将bytes数据发送到address地址
+			2. socket.recvfrom(bufsize[,flags]):接收数据，返回socket中的数据和数来源地址
+				import socket
+				PORT = 999
+				DATA_LEN = 4096
+				books = ('one','tow','three')
+				s = socket.socket(type=socket.SOCK_DGRAM)
+				s.bind(('192.168.1.1',PORT))
+				for i in range(1000):
+					data ,addr = s.recvfrom(DATA_LEN)
+					print(data,decode('utf-8'))
+					send_data = books[i % 4].encode('utf-8')
+					s.sendto(send_data,addr)
+				s.close()
+		来自服务器端的数据，客户端程序代码：
+				import socket
+				PORT = 3000
+				DATA_LEN = 4096
+				DEST_IP = '192.168.1.1'
+				s = socket.socket(type=socker.SOCK_DGRAM)
+				while True:
+					line = input('')
+					if line is None or line == 'exit':
+						break
+					data = line.encode('utf-8')
+					s.sendto(data,(DEST_IP,PORT))
+					data = s.recv(DATA_LEN)
+					print(data.decode('utf-8'))
+				s.close()
+
+	UDP 多点广播原理及实现
+		多点广播，将数据以广播方式发送到多个客户端
+		创建socket对象后，将该socket加入指定的多点广播地址中，socket使用setsockopt 方法加入指定组
+		创建仅发送数据报的socket对象， 使用默认地址、随机端口即可。 如创建接收数据报的socket对象，将对象绑定到指定端口
+	多点广播可设置广播信息的TTL(Time-To-Live)，TTL参数用于设置数据报最多可跨过的网络个数：
+		1. TTL的值为0：指定数据报应停留在本地主机中
+		2. 1: 指定将数据报发送到本地局域网中，此值为默认值
+		3. TTL的值为 32 时： 只能将数据报发送到本站点的网络上
+		4. 。。64 ： 数据报应被保留在本地区
+		5. 128 ： 被保留在本大洲
+		6. 255 ： 数据可被发送到所有地方
+		socket实现一个基于广播的多人聊天室，只需要一个socket、两个线程，socket用于发送数据、接收数据。主线程负责读取用户的键盘输入内容，并向socekt发送数据，子线程负责从socket中读取数据
+			import time,socket,threading, os
+			senderIP  = '192.168.1.99'
+			senderPORT = 999
+			myGroup = '230.0.0.1'
+			s = socket.socekt(type=socket.SOCK_DGRAM)
+			s.bind (('0.0.0.0',senderPORT))
+			s.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICASE_TTL,64)
+			s.setsockopt(socket.SOL_SOCKET. socket.SO_REUSEADDR, 1)
+			status = s.setsockopt(socket.IPPROTO_IP,
+					socket.IP_ADD_MEMBERSHIP,
+					socket.inet_aton(mygroup))
+			...
+			[More](http://c.biancheng.net/view/2663.html)
+
+	smtplib 模块： 发送邮件
+		底层的处理由smtplib封装，3步发送邮件：
+			1. 连接STMP服务器，使用用户名、密码登录服务器
+			2. 创建EmailMessage 对象，该对象代表邮件本身
+			3. 调用代表与SMTP服务器连接的对象的sendmail方法发送邮件
+				import smtplib
+				from email.message import EmailMessage
+				smtp_server = 'smtp.qq.com'
+				from_addr = 'mr_hale@qq.com'
+				password = 'password'
+				to_addr = 'mr_hale@163.com'
+				conn = smtplib.SMTP_SSL(smtp_server,465)
+				conn.set_debuglevel(1)
+				conn.login(from_addr,password)
+				msg = EmailMessage()
+				msg.set_content('hi','plain','utf-8')
+				conn.sendmail(from_addr,[to_add],msg.as_string())
+				conn.quit()
+			基于SSL的SMTP服务器的默认端口是465
+			常见参数：
+				1. maintype ：指定附件的主类型，如image代表附件图片
+				2. subtype ： 附件的子类型，如指定为png，代表附件是png图片，子类型受主类型的限制
+				3. filename ： 指定附件的文件名
+				4. cid = img ： 指定附件的资源ID，可通过资源ID引用该资源
+					import smtplib, email.utils
+					from emial.message import EmailMessage
+					smtp_server = 'smtp.qq.com'
+					from_arrd = 'mr_hale@qq.com'
+					password = 'pass'
+					to_addr = 'mr_hale@163.com'
+					conn = smtplib.SMTP_SSL(smtp_server,465)
+					conn.set_debuglevel(1)
+					conn.login(from_addr,password)
+					msg = EmailMessage()
+					first_id ,second_id  = email.util.make_msgid(), email.utils.make_msgid()
+					msg.set_connect('<h1>hi</hi>')
+					msg['subject'] = 'subject'
+					msg['from'] = 'mr_hale@qq.com'
+					msg['to'] = 'mr_hale@163.com'
+					with open('file_Path:/xx.png','rb') as f:
+						msg.add_attchment(f.read(),maintype='image',
+							subtype='jpeg',filename='xxx.png',cid=first_id)
+					with open('path_dir/xx.gif','rb') as f:
+						msg.add_attachment(f.read(),maintype='image',subtype='gif',filename='xxx.gif',cid=second_id)
+					with open('xxx.pdf','rb') as f:
+						msg.add_attachment(f.read(),maintype='application',subtype='pdf',filename='xxx.pdf')
+					conn.sendmail(from_arrd,[to_addr],msg.as_string())
+					conn.quit()
+
+	poplib 模块： 收取邮件
+		提供poplib.POP3 和poplib.POP3_SSL 两个类，用于连接POP服务器和基于SSL的POP服务器
+			POP3 协议属于请求，响应式交互协议，当客户端连接服务器后，客户端向POP服务器发送请求，而POP服务器对客户端生成响应数据，客户端可通过响应数据下载得到邮件内容
+		POP3的命令和数据都基于ASCII文本，以 CR 和 LF(/r/n)作为行结束符，响应数据包括一个表示返回状态的符号(+/)和描述信息
+		请求和响应的标准格式：
+			请求标准格式： 命令[参数] CRLF
+			响应标准格式： +OK /[-ERR] description CRLF
+		POP3协议客户端的命令和服务器端对象的响应数据：
+			1. user name ： 向POP服务器发送登录的用户名
+			2. pass string ： 向POP服务器发送登录的密码
+			3. quit： 退出POP服务器
+			4. stat ：统计邮件服务器状态，包括邮件数和总大小
+			5. list[msg_no] : 列出全部邮件或指定邮件，返回邮件编号和大小
+			6. retr msg_no : 获取指定邮件的内容，编号从1开始
+			7. del msg_no ： 删除指定邮件
+			8. noop ： 空操作，仅用于于服务器保持连接
+			9. rset ： 用于撤销dele命令
+		接收邮件的步骤：
+			1. 使用poplib.POP3 或 poplib.POP3_SSL 按 POP3 协议从服务器下载邮件
+			2. 使用 email.parser.Parset 或 email.parser.BytesParser解析邮件内容，得到EmailMessage对象，从EmailMessage 对象中读取邮件内容
+				import poplib,  os.path , mimetypes
+				from email.parser import BytesParser, Parser
+				from email.policy import default
+				emial = 'mr_hale@163.com'
+				password = 'password'
+				pop3_server = 'pop.qq.com'
+				conn = poplib.POP3_SSL(pop3_server, 995)
+				conn.set_debuglevel(1)
+				print(conn.getwelcome().decode('utf-8'))
+				conn.user(email)
+				conn.pass_(password)
+				message_num, total_size = conn.stat()
+				print('email num %s total %s' % (message_num,total_size))
+				resp, mails, octets = conn.list()
+				print(resp, mails)
+				resp, data, octets = conn.retr(len(mails))
+				msg_data = b'\r\n'.join(data)
+				mg = BytesParser(policy=default).parsebytes(msg_data)
+				[More](http://c.biancheng.net/view/2667.html)
+	
+				程序在创建BytesParser 解析字节串格式的邮件数据 或 Parser 解析字符串格式的邮件数据时，必须指定 policy=default， 否则 BytesParser或Parser 解析邮件数据得到的就是过时的Message对象
+		
 
 
