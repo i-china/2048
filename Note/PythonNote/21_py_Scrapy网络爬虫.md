@@ -140,7 +140,22 @@
 			程序为该Pipeline类定义了构造器，用于初始化数据库链接、游标，还为该Pipeline类重写了close_spider方法， 负责关闭构造器中初始化的数据库资源
 
 	Scrapy 突破反爬虫机制
-		
+		使用shell调试工具分析目标站点
+		使用Scrapy 爬去高清图片
+
+	Python Scrapy反爬虫常见解决方案
+		1. IP地址验证
+		2. 禁用Cookie
+		3. 违反爬虫规则文件
+		4. 限制访问频率
+		5. 图形验证码
+
+	Python Scrapy Selenium 整合： 启动浏览器并登陆
+		安装Selenium
+			1. pip install selenium 
+			2. 
+			3. 安装目标浏览器
+
 
 
 

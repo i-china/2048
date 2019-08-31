@@ -1,6 +1,9 @@
 git config ...
 
+git config --global user.name 'Hale'
+git config --global user.email 'Aspire_8@163.com'
 
+ssh-keygen -t rsa 
 
 git init
 
