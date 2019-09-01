@@ -1,5 +1,0 @@
-gitee :
-
-git remote add origin git@gitee.com:aspire_8/2048.git
-
-git pull origin master
