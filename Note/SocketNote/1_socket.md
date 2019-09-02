@@ -78,6 +78,68 @@
 	TCP/IP协议族
 		协议： Protocol 是网络通信过程中的约定或合同，双方必须都遵守才能正常收发数据。 协议是一种规范，通信双方需使用同一协议才能通信，
 		TCP/IP模型包含 TCP、IP、UDP、Telnet、FTP、SMTP等
+		TCP/UDP:![SOCKET](http://c.biancheng.net/uploads/allimg/190126/1-1Z126104435N0.gif)
+	开放式系统 Open System
+		以多个标准为依据设计的系统称为开放式系统
+	
+####	IP、MAC和端口号 - 网络通信中确认身份信息的三要素
+		IP地址
+			是 Internet Protocol Address ，网际协议地址
+		Mac地址 
+			是 Media Access Control Address , 媒体访问控制地址，称为局域网地址LAN Address，以太网地址 Ethernet Address 或 物理地址Physical Address
+		端口号
+			Port Number 为每个网路程序分配一个独一无二的端口号
+			是一个虚拟的、逻辑上的概念
 
+###	Linux 下的Socket 演示程序
+		服务器端代码server.cpp:
+			#include <stdio.h>
+			#include <string.h>
+			#include <stdlib.h>
+			...
+			int main() {
+				int serv_sock = socket(AF_INET,SOCK_STREAM,IPPROPT_TCP);
+				struct sockaddr_in serv_addr;
 
+			}
+		...
+		[SOCKET CPP](http://c.biancheng.net/view/2128.html)
+		
+###	WSAStartup() 函数以及DLL的加载
+		[More](http://c.biancheng.net/view/2130.html)
 
+### Socket() 函数用法：创建套接字
+		Linux 下的Socket函数
+		使用<sys/socket.h> 头文件中socket函数创建套接字，原型为：
+		int socket(int af, int type, int protocol);
+			1. af: 地址族 Address Family， IP地址类型，常用AF_INET：表示IPv4地址 和 AF_INET6：表示IPv6地址，
+			2. type 为数据传输方式/套接字类型，常用： SOCK_STREAM 流格式套接字/面向连接套接字 和 SOCK_DGRAM 数据套接字/无连接的套接字
+			3. protocol 表示传输协议，常用： IPPROTO_TCP 和 IPPROTO_UDP
+		TCP：
+			int tcp_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		UDP:
+			int udp_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		将 protocol的值设为0， 系统可自动推演出使用的协议：
+			int tcp_socket = socekt(AF_INET, SOCK_STREAM, 0)	// TCP
+			int udp_socket = socket(AF_INET, SOCK_DGRAM,  0)	// UDP
+
+		bind() 和 connect()函数：绑定套接字并建立连接
+			使用 bind函数将套接字与特定的IP地址和端口绑定起来，
+			bind 函数原型：
+				int bind(int sock, struct sockaddr * addr, socklen_t addrlen);	//linux
+				int bind(SOCKET sock, const struct sockaddr * addr, int addrlen);	// windows
+				[More](http://c.biancheng.net/view/2344.html)
+
+		listen accept : 让套接字进入监听状态并响应客户端请求
+			listen 函数：让套接字进入被监听状态，原型：
+				int listen(int sock, int backlog);	//linux
+				int listen(SOCKET sock, int backlog);	// windows
+					sock: 进入监听状态的套接字， backlog： 请求队列的最大长度
+
+		[More](http://c.biancheng.net/view/2345.html)
+
+####	send()/recv()和write()/read(): 发送数据和接收数据
+		Linux 下数据的接收和发送
+			[More](http://c.biancheng.net/view/2346.html)		
+		
+	

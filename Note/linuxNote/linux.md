@@ -53,5 +53,18 @@ SSH   免密登录
 	ssh-keygen		// 生成秘钥文件 保存位置为：~/.ssh
 	2. 将生成的公钥远程拷贝到Server端
 	保存到root家目录指定位置，~/.ssh 指定文件名	authorized_keys 
-	 
+
+	1. 在本地，生成 rsa 公私密钥对
+		ssh-keygen			// 如有直接使用，不需要重新生成
+	2. 将公钥文件 scp 到远程服务器
+		scp .ssh/id_rsa.pub root@39.106.208.58:~
+	3. 在远程服务器，将公钥文件添加到 ~/.ssh/authorzied_keys内
+
+SSH 别名登录
+	在 ～/.ssh/config 文件中加入如下内容
+		Host aliasName
+			HostName ipaddress|server_host_name
+			Port	22
+			User root
+			IdentityFile	~/.ssh/id_rsa
 
