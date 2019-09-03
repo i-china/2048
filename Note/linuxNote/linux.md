@@ -58,7 +58,7 @@ SSH   免密登录
 		ssh-keygen			// 如有直接使用，不需要重新生成
 	2. 将公钥文件 scp 到远程服务器
 		scp .ssh/id_rsa.pub root@39.106.208.58:~
-	3. 在远程服务器，将公钥文件添加到 ~/.ssh/authorzied_keys内
+	3. 在远程服务器，将公钥文件添加到 cat id_ras.pub ~/.ssh/authorzied_keys内
 
 SSH 别名登录
 	在 ～/.ssh/config 文件中加入如下内容
