@@ -126,3 +126,4 @@
 				可用Apache 的配置文件 如httpd.conf 和 .htaccess文件中的指令来修改 PHP 的配置设定， 需要有 AllowOverride Options 或  AllowOverride 权限才可以
 			
 
+
