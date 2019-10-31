@@ -47,7 +47,9 @@ Plugin 'majutsushi/tagbar'
 Plugin 'tpope/vim-commentary'
 
 Plugin 'tpope/vim-fugitive'
- 
+
+Plugin 'fatih/vim-go'
+
 Plugin 'vim-airline/vim-airline'
 "vim-airline配置:优化vim界面"
 "let g:airline#extensions#tabline#enabled = 1
@@ -115,19 +117,17 @@ func SetTitle()
 	if &filetype == 'sh' 
 		call setline(1, "##########################################################################") 
 		call append(line("."), "# File Name: ".expand("%")) 
-		call append(line(".")+1, "# Author: amoscykl") 
-		call append(line(".")+2, "# mail: amoscykl980629@163.com") 
+		call append(line(".")+1, "# Author: Hale Lv") 
+		call append(line(".")+2, "# mail: Aspire_8@163.com") 
 		call append(line(".")+3, "# Created Time: ".strftime("%c")) 
 		call append(line(".")+4, "#########################################################################") 
-		call append(line(".")+5, "#!/bin/zsh")
-		call append(line(".")+6, "PATH=/home/edison/bin:/home/edison/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/work/tools/gcc-3.4.5-glibc-2.3.6/bin")
-		call append(line(".")+7, "export PATH")
-		call append(line(".")+8, "")
+		call append(line(".")+5, "#!/bin/bash")
+		call append(line(".")+6, "")
 	else 
 		call setline(1, "/*************************************************************************") 
 		call append(line("."), "	> File Name: ".expand("%")) 
-		call append(line(".")+1, "	> Author: amoscykl") 
-		call append(line(".")+2, "	> Mail: amoscykl@163.com ") 
+		call append(line(".")+1, "	> Author: Hale Lv") 
+		call append(line(".")+2, "	> Mail: Aspire_8@163.com ") 
 		call append(line(".")+3, "	> Created Time: ".strftime("%c")) 
 		call append(line(".")+4, " ************************************************************************/") 
 		call append(line(".")+5, "")
@@ -298,5 +298,44 @@ endfunction
 filetype plugin indent on 
 "打开文件类型检测, 加了这句才可以用智能补全
 set completeopt=longest,menu
+
+
+func PyTitle()
+call setline(1, "\"\"\"")
+call setline(2, "\# @Author : Hale Lv")
+call setline(3, "\# @Created Time : ".strftime("%Y-%m-%d %H:%M:%S"))
+call setline(4, "\# @Description : ")
+call setline(5, "\"\"\"")
+normal G
+normal o
+normal o
+endfunc 
+autocmd bufnewfile *.py call PyTitle()
+
+func PHPTitle()
+call setline(1, "<?php ")
+call setline(2, "\# @Author : Hale Lv")
+call setline(3, "\# @Created Time : ".strftime("%Y-%m-%d %H:%M:%S"))
+call setline(4, "\# @Description : ")
+call setline(5, "")
+normal G
+normal o
+" normal o
+endfunc 
+autocmd bufnewfile *.php call PHPTitle()
+
+func MdTitle()
+call setline(1, "```")
+call setline(2, " @Author : Hale Lv")
+call setline(3, " @Created Time : ".strftime("%Y-%m-%d %H:%M:%S"))
+call setline(4, " @Description : ")
+call setline(5, "```")
+normal G
+normal o
+normal o
+endfunc 
+autocmd bufnewfile *.md call MdTitle()
+
+
 
 
